@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Global IoT - SEIAT UPC</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e24; color: white; margin: 0; text-align: center; }
+        h1 { color: #40916c; margin-top: 10px; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        
+        /* Contenedor del Mapa Geométrico */
+        .map-card { background: #2d2d35; border-radius: 15px; padding: 15px; width: 500px; height: 400px; position: relative; box-shadow: 0 8px 16px rgba(0,0,0,0.3); overflow: hidden; }
+        .info-card { background: #2d2d35; border-radius: 15px; padding: 20px; width: 300px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); text-align: left; }
+
+        /* Diseño de Calles de la Intersección en Pentágono/Y */
+        .via-visual { position: absolute; background-color: #495057; border: 2px dashed #ffb703; box-sizing: border-box; }
+        .via-v1 { width: 40px; height: 180px; top: 0; left: 130px; transform: rotate(-35deg); } /* Norte-Oeste */
+        .via-v2 { width: 180px; height: 40px; top: 180px; left: 0; }                           /* Oeste */
+        .via-v3 { width: 40px; height: 180px; bottom: 0; left: 230px; }                        /* Sur */
+        .via-v4 { width: 40px; height: 180px; top: 0; right: 130px; transform: rotate(35deg); } /* Norte-Este */
+        .via-v5 { width: 180px; height: 40px; top: 180px; right: 0; }                          /* Este */
+        .centro-interseccion { position: absolute; width: 100px; height: 100px; background: #495057; top: 150px; left: 200px; border-radius: 20%; }
+
+        /* Estilo Semáforos Gráficos */
+        .semaforo-web { position: absolute; width: 16px; height: 38px; background: #111; border-radius: 4px; padding: 2px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; z-index: 10; }
+        .luz { width: 10px; height: 10px; background: #333; border-radius: 50%; transition: 0.3s; }
+        
+        /* Posiciones de los 5 Semáforos en las esquinas del centro */
+        #sem1 { top: 120px; left: 175px; }
+        #sem2 { top: 155px; left: 165px; transform: rotate(90deg); }
+        #sem3 { top: 260px; left: 242px; }
+        #sem4 { top: 120px; left: 310px; }
+        #sem5 { top: 155px; left: 320px; transform: rotate(90deg); }
+
+        /* Vehículos Virtuales (Indicadores de Sensor) */
+        .carro-indicador { position: absolute; width: 24px; height: 14px; background-color: #e63946; border-radius: 3px; display: none; font-size: 9px; text-align: center; color: white; line-height: 14px; font-weight: bold; z-index: 5; }
+        #carro1 { top: 60px; left: 120px; transform: rotate(-35deg); }
+        #carro2 { top: 193px; left: 60px; }
+        #carro3 { bottom: 60px; left: 238px; transform: rotate(90deg); }
+        #carro4 { top: 60px; right: 120px; transform: rotate(35deg); }
+        #carro5 { top: 193px; right: 60px; }
+
+        .data-box { background: #1e1e24; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 15px; }
+        .val { font-weight: bold; color: #40916c; float: right; }
+    </style>
+</head>
+<body>
+
+    <h1>SEIAT IoT — Monitoreo Global de Tráfico</h1>
+    <p>Visualización en tiempo real desde cualquier lugar del mundo</p>
+
+    <div class="container">
+        <div class="map-card">
+            <div class="centro-interseccion"></div>
+            <div class="via-visual via-v1"></div>
+            <div class="via-visual via-v2"></div>
+            <div class="via-visual via-v3"></div>
+            <div class="via-visual via-v4"></div>
+            <div class="via-visual via-v5"></div>
+
+            <div id="carro1" class="carro-indicador">CAR</div>
+            <div id="carro2" class="carro-indicador">CAR</div>
+            <div id="carro3" class="carro-indicador">CAR</div>
+            <div id="carro4" class="carro-indicador">CAR</div>
+            <div id="carro5" class="carro-indicador">CAR</div>
+
+            <div id="sem1" class="semaforo-web"><div class="luz r"></div><div class="luz a"></div><div class="luz v"></div></div>
+            <div id="sem2" class="semaforo-web"><div class="luz r"></div><div class="luz a"></div><div class="luz v"></div></div>
+            <div id="sem3" class="semaforo-web"><div class="luz r"></div><div class="luz a"></div><div class="luz v"></div></div>
+            <div id="sem4" class="semaforo-web"><div class="luz r"></div><div class="luz a"></div><div class="luz v"></div></div>
+            <div id="sem5" class="semaforo-web"><div class="luz r"></div><div class="luz a"></div><div class="luz v"></div></div>
+        </div>
+
+        <div class="info-card">
+            <h2>Métricas Cloud</h2>
+            <div class="data-box">Modo Sistema: <span id="lbl-modo" class="val">-</span></div>
+            <div class="data-box">Vía con paso: <span id="lbl-via" class="val">-</span></div>
+            <div class="data-box">Estado Fase: <span id="lbl-fase" class="val">-</span></div>
+            <div class="data-box">Tiempo Salvado: <span id="lbl-ahorro" class="val">0s</span></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE TU PROYECTO WEB DE FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://semaforo-seiat-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('interseccion');
+
+        // ESCUCHADOR EN TIEMPO REAL: Se ejecuta automáticamente ante cualquier cambio del ESP32
+        db.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(!data) return;
+
+            // Update textos informativos
+            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO" : "CICLO FIJO";
+            document.getElementById('lbl-via').innerText = "Vía " + (data.via_activa + 1);
+            document.getElementById('lbl-fase').innerText = data.estado;
+            document.getElementById('lbl-ahorro').innerText = data.ahorro + "s";
+
+            // Control de visibilidad de vehículos según sensores físicos
+            document.getElementById('carro1').style.display = data.s1 ? 'block' : 'none';
+            document.getElementById('carro2').style.display = data.s2 ? 'block' : 'none';
+            document.getElementById('carro3').style.display = data.s3 ? 'block' : 'none';
+            document.getElementById('carro4').style.display = data.s4 ? 'block' : 'none';
+            document.getElementById('carro5').style.display = data.s5 ? 'block' : 'none';
+
+            // Resetear todos los colores de luces a gris oscuro
+            for(let i=1; i<=5; i++) {
+                let s = document.getElementById('sem' + i);
+                s.querySelector('.r').style.background = '#333';
+                s.querySelector('.a').style.background = '#333';
+                s.querySelector('.v').style.background = '#333';
+            }
+
+            // Encender la luz correspondiente según la fase del ESP32
+            let activeIdx = data.via_activa + 1;
+            let activeSem = document.getElementById('sem' + activeIdx);
+            
+            // Poner en rojo todos los demás semáforos pasivos
+            for(let i=1; i<=5; i++) {
+                if(i !== activeIdx) {
+                    document.getElementById('sem' + i).querySelector('.r').style.background = '#e63946';
+                }
+            }
+
+            // Encender la luz de la vía activa según el texto del core
+            if(data.estado === "CRUCE LIBRE") {
+                activeSem.querySelector('.v').style.background = '#52b788';
+            } else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") {
+                activeSem.querySelector('.a').style.background = '#ffb703';
+            } else if(data.estado === "ROJO GENERAL") {
+                activeSem.querySelector('.r').style.background = '#e63946';
+            } else if(data.estado === "ALERTA CAMBIO") {
+                // Simulación rápida de parpadeo verde en web
+                activeSem.querySelector('.v').style.background = (new Date().getMilliseconds() > 500) ? '#52b788' : '#333';
+            }
+        });
+    </script>
+</body>
+</html>
