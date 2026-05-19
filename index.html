@@ -4,181 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEIAT Cloud — Smart City Traffic Hub</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .console-text { font-family: 'JetBrains Mono', monospace; }
+        .asphalt { fill: #1e222b; filter: url(#asphalt-texture); }
+    </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col items-center p-4 md:p-6 selection:bg-emerald-500 selection:text-slate-900">
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col p-4 md:p-6 antialiased selection:bg-emerald-500/30 selection:text-emerald-400">
 
-    <header class="w-full max-w-6xl mb-6 flex flex-col md:flex-row md:justify-between md:items-center border-b border-slate-800 pb-4 gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-                SEIAT Cloud — Control Inteligente de Tráfico
-            </h1>
-            <p class="text-sm text-slate-500 mt-1">Plataforma de Analítica y Supervisión Remota de Intersecciones — UPC</p>
+    <header class="w-full max-w-[1440px] mx-auto mb-6 flex justify-between items-center bg-[#0d1321]/80 border border-slate-800/80 px-6 py-4 rounded-2xl backdrop-blur-md shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-gradient-to-tr from-blue-600 to-emerald-500 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                <i data-lucide="cloud-lightning" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-100">
+                    SEIAT Cloud <span class="text-slate-500 font-medium text-lg mx-2">—</span> <span class="text-slate-400 text-lg font-normal">Smart City Traffic Hub</span>
+                </h1>
+            </div>
         </div>
-        <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-full text-xs">
-            <span class="relative flex h-2 w-2">
-                <span id="ping-net" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span id="dot-net" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span id="lbl-net" class="font-medium text-slate-400 tracking-wide">Sincronizado con Firebase</span>
-        </div>
+        <button class="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors text-sm font-medium bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl cursor-pointer">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Salir</span>
+        </button>
     </header>
 
-    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <main class="w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-grow">
         
-        <section class="lg:col-span-7 bg-[#131a26] border border-slate-800/80 rounded-2xl p-4 shadow-xl shadow-black/40">
-            <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                <i data-lucide="map" class="text-emerald-400 w-5 h-5"></i>
-                <h2 class="text-base font-semibold text-slate-200">Vista de Intersección en "Y"</h2>
-            </div>
-            
-            <div class="relative w-full aspect-[4/3] bg-[#1a1f2c] rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                <svg viewBox="0 0 800 600" class="w-full h-full select-none">
+        <section class="lg:col-span-8 bg-[#0d1321] border border-slate-800 rounded-2xl p-2 md:p-4 shadow-xl flex flex-col relative overflow-hidden">
+            <div class="w-full h-full min-h-[500px] md:min-h-[620px] bg-[#070a12] rounded-xl overflow-hidden border border-slate-900 shadow-inner relative">
+                
+                <svg viewBox="0 0 1000 700" class="w-full h-full select-none">
                     <defs>
-                        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="6" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        <filter id="neon-glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
                         </filter>
-                        <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="8" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        <filter id="neon-glow-red" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/>
+                        </filter>
+                        
+                        <filter id="asphalt-texture" x="0%" y="0%" width="100%" height="100%">
+                            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise"/>
+                            <feColorMatrix type="matrix" values="0 0 0 0 0.12   0 0 0 0 0.14   0 0 0 0 0.18  0 0 0 0.9 0" in="noise" result="coloredNoise"/>
+                            <feComposite operator="in" in2="SourceGraphic"/>
                         </filter>
                     </defs>
 
-                    <path d="M 0,240 L 260,240 L 110,0 L 210,0 L 370,240 L 590,0 L 690,0 L 540,240 L 800,240 L 800,360 L 540,360 L 540,600 L 420,600 L 420,360 L 0,360 Z" fill="#2d3545" />
+                    <rect width="1000" height="700" fill="#070a12" />
+
+                    <path d="M 120,-10 L 320,240 L 410,240 L 250,-10 Z" class="asphalt" />
+                    <path d="M 880,-10 L 680,240 L 590,240 L 750,-10 Z" class="asphalt" />
+                    <path d="M -10,240 L 1010,240 L 1010,400 L -10,400 Z" class="asphalt" />
+                    <path d="M 370,400 L 370,710 L 510,710 L 510,400 Z" class="asphalt" />
+                    <path d="M 320,240 L 680,240 L 510,400 L 370,400 Z" class="asphalt" />
+
+                    <path d="M 120,-10 L 320,240 L -10,240 M -10,400 L 370,400 L 370,710 M 510,710 L 510,400 L 1010,400 M 1010,240 L 680,240 L 880,-10 M 250,-10 L 410,240 L 590,240 L 750,-10" 
+                          fill="none" stroke="#3a4355" stroke-width="8" filter="url(#shadow)" stroke-linejoin="round" />
+                    <path d="M 120,-10 L 320,240 L -10,240 M -10,400 L 370,400 L 370,710 M 510,710 L 510,400 L 1010,400 M 1010,240 L 680,240 L 880,-10 M 250,-10 L 410,240 L 590,240 L 750,-10" 
+                          fill="none" stroke="#5a677f" stroke-width="2" stroke-linejoin="round" />
+
+                    <path d="M 185,-10 L 365,240" stroke="#f59e0b" stroke-width="2" stroke-dasharray="12,8" opacity="0.7"/>
+                    <path d="M 815,-10 L 635,240" stroke="#f59e0b" stroke-width="2" stroke-dasharray="12,8" opacity="0.7"/>
+                    <path d="M -10,320 L 1010,320" stroke="#f59e0b" stroke-width="2" stroke-dasharray="12,8" opacity="0.7"/>
+                    <path d="M 440,400 L 440,710" stroke="#f59e0b" stroke-width="2" stroke-dasharray="12,8" opacity="0.7"/>
+
+                    <path d="M 365,240 Q 420,300 440,400" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8,6" opacity="0.4" />
+                    <path d="M 365,240 Q 480,290 680,320" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8,6" opacity="0.4" />
+                    <path d="M 440,400 Q 460,340 635,240" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8,6" opacity="0.4" />
+                    <path d="M 365,320 Q 430,340 440,400" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8,6" opacity="0.4" />
+
+                    <path id="glow-v1" d="M 185,-10 L 365,240 L 320,240 L 120,-10 Z" fill="rgba(6, 182, 212, 0.08)" stroke="#06b6d4" stroke-width="2" filter="url(#neon-glow-cyan)" class="transition-all duration-300" />
+                    <path id="glow-v2" d="M -10,240 L 320,240 L 320,320 L -10,320 Z" fill="rgba(6, 182, 212, 0.08)" stroke="#06b6d4" stroke-width="2" filter="url(#neon-glow-cyan)" class="transition-all duration-300" />
+                    <path id="glow-v3" d="M 440,400 L 510,400 L 510,710 L 440,710 Z" fill="rgba(6, 182, 212, 0.08)" stroke="#06b6d4" stroke-width="2" filter="url(#neon-glow-cyan)" class="transition-all duration-300" />
+                    <path id="glow-v4" d="M 750,-10 L 590,240 L 635,240 L 815,-10 Z" fill="rgba(6, 182, 212, 0.08)" stroke="#06b6d4" stroke-width="2" filter="url(#neon-glow-cyan)" class="transition-all duration-300" />
+                    <path id="glow-v5" d="M 680,320 L 1010,320 L 1010,400 L 680,400 Z" fill="rgba(6, 182, 212, 0.08)" stroke="#06b6d4" stroke-width="2" filter="url(#neon-glow-cyan)" class="transition-all duration-300" />
+
+                    <text x="40" y="210" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">OESTE</text>
+                    <text x="40" y="435" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">OESTE</text>
+                    <text x="880" y="210" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">ESTE</text>
+                    <text x="880" y="435" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">ESTE</text>
+                    <text x="535" y="660" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">SUR</text>
+                    <text x="290" y="660" fill="#475569" font-size="14" font-weight="700" letter-spacing="1">SUR</text>
                     
-                    <path d="M 0,300 L 280,300" stroke="#f59e0b" stroke-width="3" stroke-dasharray="10,10" />
-                    <path d="M 160,0 L 320,240" stroke="#f59e0b" stroke-width="3" stroke-dasharray="10,10" />
-                    <path d="M 640,0 L 480,240" stroke="#f59e0b" stroke-width="3" stroke-dasharray="10,10" />
-                    <path d="M 800,300 L 520,300" stroke="#f59e0b" stroke-width="3" stroke-dasharray="10,10" />
-                    <path d="M 480,600 L 480,330" stroke="#f59e0b" stroke-width="3" stroke-dasharray="10,10" />
+                    <text x="475" y="340" fill="#64748b" font-size="44" font-weight="800" opacity="0.4">Y</text>
 
-                    <path id="svg-bg-v1" d="M 110,0 L 160,0 L 300,210 L 250,210 Z" fill="transparent" class="transition-colors duration-300" />
-                    <path id="svg-bg-v2" d="M 0,240 L 260,240 L 260,300 L 0,300 Z" fill="transparent" class="transition-colors duration-300" />
-                    <path id="svg-bg-v3" d="M 480,360 L 540,360 L 540,600 L 480,600 Z" fill="transparent" class="transition-colors duration-300" />
-                    <path id="svg-bg-v4" d="M 590,0 L 640,0 L 500,210 L 450,210 Z" fill="transparent" class="transition-colors duration-300" />
-                    <path id="svg-bg-v5" d="M 540,300 L 800,300 L 800,360 L 540,360 Z" fill="transparent" class="transition-colors duration-300" />
+                    <g fill="#475569" opacity="0.6">
+                        <path d="M 230,100 L 250,130 L 245,135 L 225,105 Z" /> <polygon points="255,135 245,120 235,140" /> <path d="M 200,270 L 240,270 L 240,274 L 200,274 Z" /> <polygon points="250,272 235,264 235,280" /> <path d="M 760,100 L 740,130 L 735,125 L 755,95 Z" /> <polygon points="735,135 740,115 755,130" /> <path d="M 780,360 L 740,360 L 740,356 L 780,356 Z" /> <polygon points="730,358 745,350 745,366" /> <path d="M 475,520 L 475,480 L 471,480 L 471,520 Z" /> <polygon points="473,470 465,485 481,485" /> </g>
 
-                    <g fill="#94a3b8" transform="translate(190,70) rotate(123)">
-                        <path d="M0,0 L-8,-15 L8,-15 Z M-3,-15 L-3,-35 L3,-35 L3,-15 Z" />
+                    <g id="car-v1" class="transition-all duration-500 opacity-0" transform="translate(220,50) rotate(52)">
+                        <rect x="-14" y="-26" width="28" height="52" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1" filter="url(#shadow)"/>
+                        <rect x="-11" y="-23" width="22" height="46" rx="4" fill="#334155"/>
+                        <rect x="-10" y="-8" width="20" height="22" rx="2" fill="#0f172a"/> <path d="M-9,-14 L9,-14 L6,-20 L-6,-20 Z" fill="#64748b"/> </g>
+                    <g id="car-v2" class="transition-all duration-500 opacity-0" transform="translate(140,280) rotate(90)">
+                        <rect x="-14" y="-26" width="28" height="52" rx="6" fill="#334155" stroke="#64748b" stroke-width="1" filter="url(#shadow)"/>
+                        <rect x="-11" y="-23" width="22" height="46" rx="4" fill="#475569"/>
+                        <rect x="-10" y="-8" width="20" height="22" rx="2" fill="#1e293b"/>
+                        <path d="M-9,-14 L9,-14 L6,-20 L-6,-20 Z" fill="#94a3b8"/>
                     </g>
-                    <g fill="#94a3b8" transform="translate(120,270) rotate(90)">
-                        <path d="M0,0 L-8,-15 L8,-15 Z M-3,-15 L-3,-35 L3,-35 L3,-15 Z" />
+                    <g id="car-v3" class="transition-all duration-500 opacity-0" transform="translate(475,540)">
+                        <rect x="-14" y="-26" width="28" height="52" rx="6" fill="#0f172a" stroke="#1e293b" stroke-width="1" filter="url(#shadow)"/>
+                        <rect x="-11" y="-23" width="22" height="46" rx="4" fill="#1e293b"/>
+                        <rect x="-10" y="-8" width="20" height="22" rx="2" fill="#020617"/>
+                        <path d="M-9,-14 L9,-14 L6,-20 L-6,-20 Z" fill="#475569"/>
                     </g>
-                    <g fill="#94a3b8" transform="translate(510,480)">
-                        <path d="M0,0 L-8,-15 L8,-15 Z M-3,-15 L-3,-35 L3,-35 L3,-15 Z" />
+                    <g id="car-v4" class="transition-all duration-500 opacity-0" transform="translate(740,50) rotate(-52)">
+                        <rect x="-14" y="-26" width="28" height="52" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1" filter="url(#shadow)"/>
+                        <rect x="-11" y="-23" width="22" height="46" rx="4" fill="#334155"/>
+                        <rect x="-10" y="-8" width="20" height="22" rx="2" fill="#0f172a"/>
+                        <path d="M-9,-14 L9,-14 L6,-20 L-6,-20 Z" fill="#64748b"/>
                     </g>
-                    <g fill="#94a3b8" transform="translate(570,70) rotate(-123)">
-                        <path d="M0,0 L-8,-15 L8,-15 Z M-3,-15 L-3,-35 L3,-35 L3,-15 Z" />
-                    </g>
-                    <g fill="#94a3b8" transform="translate(680,330) rotate(-90)">
-                        <path d="M0,0 L-8,-15 L8,-15 Z M-3,-15 L-3,-35 L3,-35 L3,-15 Z" />
+                    <g id="car-v5" class="transition-all duration-500 opacity-0" transform="translate(840,360) rotate(-90)">
+                        <rect x="-14" y="-26" width="28" height="52" rx="6" fill="#334155" stroke="#64748b" stroke-width="1" filter="url(#shadow)"/>
+                        <rect x="-11" y="-23" width="22" height="46" rx="4" fill="#475569"/>
+                        <rect x="-10" y="-8" width="20" height="22" rx="2" fill="#1e293b"/>
+                        <path d="M-9,-14 L9,-14 L6,-20 L-6,-20 Z" fill="#94a3b8"/>
                     </g>
 
-                    <text x="30" y="220" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">OESTE (V2)</text>
-                    <text x="70" y="400" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">OESTE (SALIDA)</text>
-                    <text x="70" y="40" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">NORTE-OESTE (V1)</text>
-                    <text x="630" y="40" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">NORTE-ESTE (V4)</text>
-                    <text x="680" y="220" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">ESTE (SALIDA)</text>
-                    <text x="680" y="390" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">ESTE (V5)</text>
-                    <text x="560" y="580" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">SUR (V3)</text>
-                    <text x="330" y="580" fill="#64748b" font-size="14" font-weight="bold" font-family="sans-serif">SUR (SALIDA)</text>
-
-                    <g id="car-v1" class="opacity-0 transition-opacity duration-200" transform="translate(180,95) rotate(33)"><circle cx="0" cy="0" r="14" fill="#ef4444" filter="url(#glow-red)"/><text x="-8" y="5" fill="#fff" font-size="12" font-weight="bold">🚗</text></g>
-                    <g id="car-v2" class="opacity-0 transition-opacity duration-200" transform="translate(120,270)"><circle cx="0" cy="0" r="14" fill="#ef4444" filter="url(#glow-red)"/><text x="-8" y="5" fill="#fff" font-size="12" font-weight="bold">🚗</text></g>
-                    <g id="car-v3" class="opacity-0 transition-opacity duration-200" transform="translate(510,480)"><circle cx="0" cy="0" r="14" fill="#ef4444" filter="url(#glow-red)"/><text x="-8" y="5" fill="#fff" font-size="12" font-weight="bold">🚗</text></g>
-                    <g id="car-v4" class="opacity-0 transition-opacity duration-200" transform="translate(580,95) rotate(-33)"><circle cx="0" cy="0" r="14" fill="#ef4444" filter="url(#glow-red)"/><text x="-8" y="5" fill="#fff" font-size="12" font-weight="bold">🚗</text></g>
-                    <g id="car-v5" class="opacity-0 transition-opacity duration-200" transform="translate(680,330)"><circle cx="0" cy="0" r="14" fill="#ef4444" filter="url(#glow-red)"/><text x="-8" y="5" fill="#fff" font-size="12" font-weight="bold">🚗</text></g>
+                    <g id="svg-tl-v1" transform="translate(390,195)" filter="url(#shadow)">
+                        <rect x="-9" y="-24" width="18" height="48" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+                        <circle id="v1-r" cx="0" cy="-14" r="5" fill="#374151"/>
+                        <circle id="v1-a" cx="0" cy="0" r="5" fill="#374151"/>
+                        <circle id="v1-v" cx="0" cy="14" r="5" fill="#374151"/>
+                    </g>
+                    <g id="svg-tl-v2" transform="translate(345,290)" filter="url(#shadow)">
+                        <rect x="-9" y="-24" width="18" height="48" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+                        <circle id="v2-r" cx="0" cy="-14" r="5" fill="#374151"/>
+                        <circle id="v2-a" cx="0" cy="0" r="5" fill="#374151"/>
+                        <circle id="v2-v" cx="0" cy="14" r="5" fill="#374151"/>
+                    </g>
+                    <g id="svg-tl-v3" transform="translate(410,430)" filter="url(#shadow)">
+                        <rect x="-9" y="-24" width="18" height="48" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+                        <circle id="v3-r" cx="0" cy="-14" r="5" fill="#374151"/>
+                        <circle id="v3-a" cx="0" cy="0" r="5" fill="#374151"/>
+                        <circle id="v3-v" cx="0" cy="14" r="5" fill="#374151"/>
+                    </g>
+                    <g id="svg-tl-v4" transform="translate(610,195)" filter="url(#shadow)">
+                        <rect x="-9" y="-24" width="18" height="48" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+                        <circle id="v4-r" cx="0" cy="-14" r="5" fill="#374151"/>
+                        <circle id="v4-a" cx="0" cy="0" r="5" fill="#374151"/>
+                        <circle id="v4-v" cx="0" cy="14" r="5" fill="#374151"/>
+                    </g>
+                    <g id="svg-tl-v5" transform="translate(655,290)" filter="url(#shadow)">
+                        <rect x="-9" y="-24" width="18" height="48" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+                        <circle id="v5-r" cx="0" cy="-14" r="5" fill="#374151"/>
+                        <circle id="v5-a" cx="0" cy="0" r="5" fill="#374151"/>
+                        <circle id="v5-v" cx="0" cy="14" r="5" fill="#374151"/>
+                    </g>
                 </svg>
 
-                <div id="tl-v1" class="absolute top-[32%] left-[40%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg z-10">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v2" class="absolute top-[41%] left-[30%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg z-10">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v3" class="absolute top-[61%] left-[44%] bg-slate-950 border border-slate-800 p-1 rounded flex gap-1 shadow-lg z-10">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v4" class="absolute top-[32%] left-[56%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg z-10">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v5" class="absolute top-[41%] left-[67%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg z-10">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
+                <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs">
+                    <span class="relative flex h-2 w-2">
+                        <span id="ping-net" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span id="dot-net" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span id="lbl-net" class="text-slate-400 font-medium">Firebase: Online</span>
                 </div>
             </div>
         </section>
 
-        <section class="lg:col-span-5 flex flex-col gap-6 w-full">
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="cpu" class="text-blue-400 w-5 h-5"></i>
-                    <h2 class="text-base font-semibold text-slate-200">Telemetría del Nodo</h2>
+        <section class="lg:col-span-4 flex flex-col gap-6 w-full">
+            
+            <div class="bg-[#0d1321] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-5">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="bar-chart-3" class="text-blue-400 w-5 h-5"></i>
+                    <h2 class="text-base font-semibold text-slate-200">Telemetría de Operación</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Algoritmo</span>
-                        <div id="lbl-modo" class="text-sm font-bold text-blue-400">CARGANDO...</div>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-start gap-3 bg-slate-900/40 border border-slate-800/60 p-3 rounded-xl">
+                        <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg mt-0.5"><i data-lucide="cpu" class="w-4 h-4"></i></div>
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Algoritmo de Control</span>
+                            <div id="lbl-modo" class="text-sm font-bold text-blue-400 mt-0.5">CARGANDO SERVIDOR...</div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Paso Priorizado</span>
-                        <div id="lbl-via" class="text-sm font-bold text-emerald-400">-</div>
+                    
+                    <div class="flex items-start gap-3 bg-slate-900/40 border border-slate-800/60 p-3 rounded-xl">
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg mt-0.5"><i data-lucide="move-right" class="w-4 h-4"></i></div>
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Flujo Priorizado</span>
+                            <div id="lbl-via" class="text-sm font-bold text-slate-200 mt-0.5">—</div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Fase Actual</span>
-                        <div id="lbl-fase" class="text-sm font-bold text-slate-200">-</div>
+
+                    <div class="flex items-start gap-3 bg-slate-900/40 border border-slate-800/60 p-3 rounded-xl">
+                        <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg mt-0.5"><i data-lucide="activity" class="w-4 h-4"></i></div>
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Estado Fase</span>
+                            <div id="lbl-fase" class="text-sm font-bold text-slate-200 mt-0.5">—</div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Tiempo Salvado</span>
-                        <div id="lbl-ahorro" class="text-sm font-bold text-amber-400">0s</div>
+
+                    <div class="flex items-start gap-3 bg-slate-900/40 border border-slate-800/60 p-3 rounded-xl">
+                        <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg mt-0.5"><i data-lucide="hourglass" class="w-4 h-4"></i></div>
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Tiempo Salvado (Eficiencia de Retraso)</span>
+                            <div id="lbl-ahorro" class="text-sm font-bold text-amber-400 mt-0.5">0s</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-3 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="terminal" class="text-amber-400 w-5 h-5"></i>
-                    <h2 class="text-base font-semibold text-slate-200">Consola del Sistema</h2>
+            <div class="bg-[#0d1321] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col flex-grow">
+                <div class="flex items-center gap-2 mb-3 border-b border-slate-800 pb-3">
+                    <i data-lucide="terminal" class="text-emerald-400 w-5 h-5"></i>
+                    <h2 class="text-base font-semibold text-slate-200">Consola de Telemetría Realtime</h2>
                 </div>
-                <div id="log-console" class="bg-slate-950 border border-slate-900 p-3 rounded-xl font-mono text-xs text-emerald-400 h-28 overflow-y-auto space-y-1 scrollbar-thin">
-                    <div>&gt; Inicializando conexión remota Web-IoT...</div>
+                <div id="log-console" class="console-text bg-[#050811] border border-slate-900 p-4 rounded-xl text-[11px] text-emerald-400 h-36 overflow-y-auto space-y-1.5 scrollbar-thin flex-grow">
+                    <div><span class="text-slate-600">&gt;</span> Sistema web listo. Conectando con los nodos analógicos TCRT5000...</div>
                 </div>
             </div>
 
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="sliders" class="text-purple-400 w-5 h-5"></i>
+            <div class="bg-[#0d1321] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="sliders-horizontal" class="text-purple-400 w-5 h-5"></i>
                     <h2 class="text-base font-semibold text-slate-200">Acciones Cloud</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="conmutarModo()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 cursor-pointer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="conmutarModo()" class="w-full bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 font-semibold text-xs py-3.5 px-4 rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-black/20">
                         Conmutar Algoritmo
                     </button>
-                    <button onclick="recalibrarVias()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs py-3 rounded-xl transition-all active:scale-95 cursor-pointer">
-                        Forzar Calibración
+                    <button onclick="recalibrarVias()" class="w-full bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 font-semibold text-xs py-3.5 px-4 rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-black/20">
+                        Calibrar Sensores Remotos
                     </button>
                 </div>
             </div>
+
         </section>
     </main>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE RTDB
+        // CONFIGURACIÓN DE TU BASE DE DATOS EN TIEMPO REAL DE FIREBASE
         const firebaseConfig = {
-            databaseURL: "https://tu-proyecto-seiat-default-rtdb.firebaseio.com" // MODIFICA POR TU URL CORRECTA
+            databaseURL: "https://tu-proyecto-seiat-default-rtdb.firebaseio.com" // <--- Reemplaza con tu URL real
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('interseccion');
@@ -187,112 +263,109 @@
             const con = document.getElementById('log-console');
             const newElement = document.createElement('div');
             const time = new Date().toLocaleTimeString();
-            newElement.innerHTML = `<span class="text-slate-500">[${time}]</span> &gt; ${txt}`;
+            newElement.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="text-emerald-400">&gt; ${txt}</span>`;
             con.appendChild(newElement);
             con.scrollTop = con.scrollHeight;
         }
 
-        // LISTENERS DE CONTROL DE ESTADO DE RED
+        // CONTROLADOR DE CONEXIÓN DE RED A FIREBASE RTDB
         firebase.database().ref('.info/connected').on('value', (snap) => {
             const lbl = document.getElementById('lbl-net');
             const dot = document.getElementById('dot-net');
-            const ping = document.getElementById('ping-net');
             if (snap.val() === true) {
-                lbl.innerText = "Sincronizado con Firebase";
-                lbl.className = "font-medium text-slate-400 tracking-wide";
+                lbl.innerText = "Firebase Sync: EXCELENTE";
+                lbl.className = "text-emerald-400 font-medium";
                 dot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
-                ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                appendLog("Enlace Cloud establecido exitosamente.");
+                appendLog("Firebase Sync: EXCELENTE");
             } else {
-                lbl.innerText = "Desconectado / Reconectando...";
-                lbl.className = "font-medium text-red-400 tracking-wide";
+                lbl.innerText = "Firebase Sync: DISCONECTED";
+                lbl.className = "text-red-500 font-medium";
                 dot.className = "relative inline-flex rounded-full h-2 w-2 bg-red-500";
-                ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75";
-                appendLog("Alerta: Se perdió la conexión con el servidor Firebase.");
+                appendLog("Alerta: Servidor desvinculado.");
             }
         });
 
-        // MANEJADOR DE CAMBIOS EN TIEMPO REAL DESDE LA ESP32 / CLOUD
+        // MANEJADOR DINÁMICO RECEPTOR DE TELEMETRÍA (ESP32 -> CLOUD -> WEB)
         db.on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
 
-            // Actualización de Textos
-            const nombresVias = ["Norte-Oeste (V1)", "Oeste (V2)", "Sur (V3)", "Norte-Este (V4)", "Este (V5)"];
+            const nombresVias = ["NORTE-OESTE (V1)", "OESTE (V2)", "SUR (V3)", "NORTE-ESTE (V4)", "ESTE (V5)"];
             
-            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO IoT (SIGMA AI)" : "ESTÁTICO FIJO";
-            document.getElementById('lbl-modo').className = data.modo ? "text-sm font-bold text-emerald-400" : "text-sm font-bold text-blue-400";
+            // 1. Renderizar Textos e Indicadores
+            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO IoT (SIGMA AI)" : "CICLO ESTÁTICO FIJO";
+            document.getElementById('lbl-modo').className = data.modo ? "text-sm font-bold text-emerald-400 mt-0.5" : "text-sm font-bold text-blue-500 mt-0.5";
             
-            document.getElementById('lbl-via').innerText = data.modo ? (nombresVias[data.via_activa] || "Ninguna") : "Ninguna (Ciclo Rotativo)";
-            document.getElementById('lbl-fase').innerText = data.estado || "INDETERMINADO";
-            document.getElementById('lbl-ahorro').innerText = (data.ahorro || 0) + " segundos";
+            document.getElementById('lbl-via').innerText = nombresVias[data.via_activa] || "Ninguna";
+            document.getElementById('lbl-fase').innerText = data.estado || "ESPERANDO DATA";
+            document.getElementById('lbl-ahorro').innerText = (data.ahorro || 0) + "s";
 
-            // Control Dinámico de Iluminación de Sensores e Iconos en el SVG
-            const bgSlices = ["svg-bg-v1", "svg-bg-v2", "svg-bg-v3", "svg-bg-v4", "svg-bg-v5"];
-            const carIcons = ["car-v1", "car-v2", "car-v3", "car-v4", "car-v5"];
+            // 2. Controladores de Iluminación de Carriles (Neón) y Presencia de Vehículos
+            const carrilGlows = ["glow-v1", "glow-v2", "glow-v3", "glow-v4", "glow-v5"];
+            const carGroups = ["car-v1", "car-v2", "car-v3", "car-v4", "car-v5"];
             
             for(let i = 0; i < 5; i++) {
-                let segment = document.getElementById(bgSlices[i]);
-                let carG = document.getElementById(carIcons[i]);
-                let isDetected = data['s' + (i+1)]; // Lee variables s1, s2, s3, s4, s5 del JSON
+                let glowZone = document.getElementById(carrilGlows[i]);
+                let vehicle = document.getElementById(carGroups[i]);
+                let sensorActive = data['s' + (i+1)]; // Lee s1, s2, s3, s4, s5 desde la base de datos
 
-                if(isDetected) {
-                    segment.setAttribute("fill", "rgba(239, 68, 68, 0.15)");
-                    segment.setAttribute("stroke", "#ef4444");
-                    segment.setAttribute("stroke-width", "2");
-                    segment.setAttribute("filter", "url(#glow-cyan)");
-                    if(carG) carG.classList.remove('opacity-0');
+                if(sensorActive) {
+                    // Cambia la iluminación del carril de Cian a Rojo Neón cuando el sensor detecta un carro
+                    glowZone.setAttribute("fill", "rgba(239, 68, 68, 0.18)");
+                    glowZone.setAttribute("stroke", "#ef4444");
+                    glowZone.setAttribute("filter", "url(#neon-glow-red)");
+                    if(vehicle) vehicle.classList.remove('opacity-0');
                 } else {
-                    segment.setAttribute("fill", "transparent");
-                    segment.removeAttribute("stroke");
-                    segment.removeAttribute("filter");
-                    if(carG) carG.classList.add('opacity-0');
+                    // Retorna al estado Cian por defecto
+                    glowZone.setAttribute("fill", "rgba(6, 182, 212, 0.08)");
+                    glowZone.setAttribute("stroke", "#06b6d4");
+                    glowZone.setAttribute("filter", "url(#neon-glow-cyan)");
+                    if(vehicle) vehicle.classList.add('opacity-0');
                 }
             }
 
-            // Controladores de color de Semáforos Físicos (Estructura de nodos CSS)
-            const sems = ["tl-v1", "tl-v2", "tl-v3", "tl-v4", "tl-v5"];
+            // 3. Control de Color e Iluminación Interna de Semáforos Vectoriales
+            const preSems = ["v1-", "v2-", "v3-", "v4-", "v5-"];
             
-            // Apagar todos a valores por defecto (Gris oscuro)
+            // Apagar y resetear todas las lámparas de los semáforos (Fijar a Gris Oscuro de base)
             for(let i = 0; i < 5; i++) {
-                let s = document.getElementById(sems[i]);
-                s.querySelector('.r').style.backgroundColor = '#1e293b';
-                s.querySelector('.a').style.backgroundColor = '#1e293b';
-                s.querySelector('.v').style.backgroundColor = '#1e293b';
-                s.querySelector('.r').style.boxShadow = 'none';
-                s.querySelector('.a').style.boxShadow = 'none';
-                s.querySelector('.v').style.boxShadow = 'none';
+                document.getElementById(preSems[i] + 'r').setAttribute("fill", "#1f2937");
+                document.getElementById(preSems[i] + 'a').setAttribute("fill", "#1f2937");
+                document.getElementById(preSems[i] + 'v').setAttribute("fill", "#1f2937");
+                document.getElementById(preSems[i] + 'r').removeAttribute("filter");
+                document.getElementById(preSems[i] + 'a').removeAttribute("filter");
+                document.getElementById(preSems[i] + 'v').removeAttribute("filter");
             }
 
-            // Encendido inteligente basado en la vía activa enviada por el ESP32
-            let activeIdx = data.via_activa; 
-            let currentEstado = data.estado;
+            // Encendido de luces de semáforo basado en las variables 'via_activa' y 'estado'
+            let active = data.via_activa;
+            let currentFase = data.estado;
 
             for(let i = 0; i < 5; i++) {
-                let s = document.getElementById(sems[i]);
-                if(i === activeIdx) {
-                    if(currentEstado === "CRUCE LIBRE" || currentEstado === "VERDE") {
-                        s.querySelector('.v').style.backgroundColor = '#10b981';
-                        s.querySelector('.v').style.boxShadow = '0 0 10px #10b981';
-                    } else if(currentEstado === "PREPARANDO" || currentEstado === "FRENANDO" || currentEstado === "AMARILLO") {
-                        s.querySelector('.a').style.backgroundColor = '#f59e0b';
-                        s.querySelector('.a').style.boxShadow = '0 0 10px #f59e0b';
+                if(i === active) {
+                    // Semáforo con paso autorizado
+                    if(currentFase === "CRUCE LIBRE" || currentFase === "VERDE" || currentFase.includes("V2")) {
+                        document.getElementById(preSems[i] + 'v').setAttribute("fill", "#10b981");
+                        document.getElementById(preSems[i] + 'v').setAttribute("filter", "url(#neon-glow-cyan)");
+                    } else if(currentFase === "PREPARANDO" || currentFase === "AMARILLO") {
+                        document.getElementById(preSems[i] + 'a').setAttribute("fill", "#f59e0b");
+                        document.getElementById(preSems[i] + 'a').setAttribute("filter", "url(#neon-glow-cyan)");
                     } else {
-                        s.querySelector('.r').style.backgroundColor = '#ef4444';
-                        s.querySelector('.r').style.boxShadow = '0 0 10px #ef4444';
+                        document.getElementById(preSems[i] + 'r').setAttribute("fill", "#ef4444");
+                        document.getElementById(preSems[i] + 'r').setAttribute("filter", "url(#neon-glow-red)");
                     }
                 } else {
-                    // Todas las vías que no tienen paso se aseguran en ROJO de seguridad
-                    s.querySelector('.r').style.backgroundColor = '#ef4444';
+                    // Bloqueo preventivo de seguridad (Todos los demás semáforos en ROJO)
+                    document.getElementById(preSems[i] + 'r').setAttribute("fill", "#ef4444");
                 }
             }
         });
 
-        // FUNCIONES EJECUTABLES REMOTAS HACIA LA BASE DE DATOS
+        // EMISIÓN DE COMANDOS CLOUD INTERACTIVOS
         function conmutarModo() {
             db.child('modo').transaction(current => {
                 const next = !current;
-                appendLog(`Comando Cloud enviado: Cambiando a Modo ${next ? 'ADAPTATIVO' : 'ESTÁTICO'}`);
+                appendLog(`Comando Cloud: Conmutación manual de Algoritmo.`);
                 return next;
             });
         }
@@ -302,11 +375,11 @@
                 estado: "CALIBRANDO",
                 comando_remoto: "RECALIBRAR" 
             }).then(() => {
-                appendLog("Comando Cloud: Forzar calibración en sensores analógicos IR.");
+                appendLog("Comando Cloud: Forzar calibración de sensores analógicos IR.");
             });
         }
 
-        // Renderizado automático de set de iconos vectoriales
+        // Inicializador automático para los iconos vectoriales de Lucide
         lucide.createIcons();
     </script>
 </body>
