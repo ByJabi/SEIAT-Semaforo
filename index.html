@@ -1,229 +1,247 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEIAT Cloud — Smart City Traffic Hub</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEIAT - Monitoreo de Intersección</title>
+
+<style>
+    body{
+        margin:0;
+        background:#081120;
+        font-family:Arial, Helvetica, sans-serif;
+        color:white;
+        overflow:hidden;
+    }
+
+    .panel{
+        position:absolute;
+        top:20px;
+        left:20px;
+        width:260px;
+        background:#101b33;
+        border:1px solid #1e3a5f;
+        border-radius:10px;
+        padding:15px;
+        box-shadow:0 0 15px rgba(0,255,255,0.2);
+    }
+
+    .panel h2{
+        margin-top:0;
+        color:#00d9ff;
+    }
+
+    .estado{
+        margin:10px 0;
+        font-size:18px;
+    }
+
+    svg{
+        width:100vw;
+        height:100vh;
+    }
+
+    .sensor{
+        fill:#333;
+        stroke:white;
+        stroke-width:2;
+    }
+
+    .sensor.activo{
+        fill:#00ff00;
+        filter: drop-shadow(0px 0px 8px lime);
+    }
+
+    .semaforo{
+        stroke:#222;
+        stroke-width:2;
+    }
+
+    .texto{
+        fill:white;
+        font-size:16px;
+    }
+</style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col items-center p-4 md:p-6 selection:bg-emerald-500 selection:text-slate-900">
 
-    <header class="w-full max-w-6xl mb-6 flex flex-col md:flex-row md:justify-between md:items-center border-b border-slate-800 pb-4 gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-                SEIAT Cloud — Control Inteligente de Tráfico
-            </h1>
-            <p class="text-sm text-slate-500 mt-1">Plataforma de Analítica y Supervisión Remota de Intersecciones — UPC</p>
-        </div>
-        <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-full text-xs">
-            <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span id="lbl-net" class="font-medium text-slate-400 tracking-wide">Sincronizado con Firebase</span>
-        </div>
-    </header>
+<body>
 
-    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        <section class="lg:col-span-7 bg-[#131a26] border border-slate-800/80 rounded-2xl p-4 shadow-xl shadow-black/40">
-            <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                <i data-lucide="map" class="text-emerald-400 w-5 h-5"></i>
-                <h2 class="text-base font-semibold text-slate-200">Vista de Intersección</h2>
-            </div>
-            
-            <div class="relative w-full aspect-square md:h-[480px] md:w-auto mx-auto bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner" 
-                 style="background-image: url('mapa-interseccion.png'); background-size: cover; background-position: center;">
-                
-                <div class="absolute inset-0 bg-gradient-to-b from-slate-950/20 to-slate-950/80 pointer-events-none"></div>
+<div class="panel">
+    <h2>SEIAT</h2>
 
-                <div id="zone-v1" class="absolute top-[20%] left-[30%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
-                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
-                </div>
-                <div id="zone-v2" class="absolute top-[45%] left-[15%] -translate-x-1/2 -translate-y-1/2 w-16 h-10 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
-                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
-                </div>
-                <div id="zone-v3" class="absolute top-[75%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
-                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
-                </div>
-                <div id="zone-v4" class="absolute top-[20%] left-[70%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
-                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
-                </div>
-                <div id="zone-v5" class="absolute top-[45%] left-[85%] -translate-x-1/2 -translate-y-1/2 w-16 h-10 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
-                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
-                </div>
+    <div class="estado">
+        Estado:
+        <span id="estadoTexto">Cargando...</span>
+    </div>
 
-                <div id="tl-v1" class="absolute top-[35%] left-[38%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v2" class="absolute top-[40%] left-[30%] bg-slate-950 border border-slate-800 p-1 rounded flex gap-1 shadow-lg shadow-black/50">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v3" class="absolute top-[60%] left-[45%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v4" class="absolute top-[35%] left-[58%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-                <div id="tl-v5" class="absolute top-[40%] left-[65%] bg-slate-950 border border-slate-800 p-1 rounded flex gap-1 shadow-lg shadow-black/50">
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
-                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
-                </div>
-            </div>
-        </section>
+    <div class="estado">
+        Vía activa:
+        <span id="viaActiva">-</span>
+    </div>
 
-        <section class="lg:col-span-5 flex flex-col gap-6 w-full">
-            
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="cpu" class="text-blue-400 w-5 h-5"></i>
-                    <h2 class="text-base font-semibold text-slate-200">Telemetría del Nodo</h2>
-                </div>
+    <div class="estado">
+        Modo:
+        <span id="modo">-</span>
+    </div>
+</div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Algoritmo</span>
-                        <div id="lbl-modo" class="text-sm font-bold text-blue-400">-</div>
-                    </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Paso Priorizado</span>
-                        <div id="lbl-via" class="text-sm font-bold text-emerald-400">-</div>
-                    </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Fase Actual</span>
-                        <div id="lbl-fase" class="text-sm font-bold text-slate-200">-</div>
-                    </div>
-                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Tiempo Salvado</span>
-                        <div id="lbl-ahorro" class="text-sm font-bold text-amber-400">0s</div>
-                    </div>
-                </div>
-            </div>
+<svg viewBox="0 0 1200 700">
 
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-3 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="terminal" class="text-amber-400 w-5 h-5"></i>
-                    <h2 class="text-base font-semibold text-slate-200">Consola del Sistema</h2>
-                </div>
-                <div id="log-console" class="bg-slate-950 border border-slate-900 p-3 rounded-xl font-mono text-xs text-blue-400 h-24 overflow-y-auto space-y-1 scrollbar-thin">
-                    <div>> Enlace listo con la red IoT de la UPC.</div>
-                </div>
-            </div>
+    <!-- CALLES -->
 
-            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
-                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
-                    <i data-lucide="sliders" class="text-purple-400 w-5 h-5"></i>
-                    <h2 class="text-base font-semibold text-slate-200">Acciones Cloud</h2>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="conmutarModo()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 cursor-pointer">
-                        Conmutar Algoritmo
-                    </button>
-                    <button onclick="recalibrarVias()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs py-3 rounded-xl transition-all active:scale-95 cursor-pointer">
-                        Forzar Calibración
-                    </button>
-                </div>
-            </div>
+    <rect x="0" y="300" width="1200" height="100" fill="#555"/>
+    <rect x="550" y="0" width="100" height="700" fill="#555"/>
 
-        </section>
-    </main>
+    <!-- LÍNEAS -->
+    <line x1="0" y1="350" x2="1200" y2="350"
+          stroke="yellow" stroke-width="4" stroke-dasharray="20 10"/>
 
-    <script>
-        // CONFIGURACIÓN DE FIREBASE (Asegúrate de cambiar esto por tus credenciales reales)
-        const firebaseConfig = {
-            databaseURL: "https://semaforo-seiat-default-rtdb.firebaseio.com"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('interseccion');
+    <line x1="600" y1="0" x2="600" y2="700"
+          stroke="yellow" stroke-width="4" stroke-dasharray="20 10"/>
 
-        function appendLog(txt) {
-            const con = document.getElementById('log-console');
-            const newElement = document.createElement('div');
-            newElement.innerText = `> ${txt}`;
-            con.appendChild(newElement);
-            con.scrollTop = con.scrollHeight;
-        }
+    <!-- SEMÁFORO NORTE -->
+    <circle id="norte_rojo" class="semaforo" cx="530" cy="240" r="12" fill="red"/>
+    <circle id="norte_amarillo" class="semaforo" cx="530" cy="270" r="12" fill="#333"/>
+    <circle id="norte_verde" class="semaforo" cx="530" cy="300" r="12" fill="#333"/>
 
-        // CONTROLADOR DE EVENTOS EN TIEMPO REAL
-        db.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if(!data) return;
+    <!-- SEMÁFORO SUR -->
+    <circle id="sur_rojo" class="semaforo" cx="670" cy="460" r="12" fill="red"/>
+    <circle id="sur_amarillo" class="semaforo" cx="670" cy="490" r="12" fill="#333"/>
+    <circle id="sur_verde" class="semaforo" cx="670" cy="520" r="12" fill="#333"/>
 
-            // Actualización de Métricas Textuales
-            const nombresVias = ["Norte-Oeste (V1)", "Oeste (V2)", "Sur (V3)", "Norte-Este (V4)", "Este (V5)"];
-            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO DE FLUJO" : "CICLO ESTÁTICO FIJO";
-            document.getElementById('lbl-via').innerText = nombresVias[data.via_activa] || "Ninguna";
-            document.getElementById('lbl-fase').innerText = data.estado;
-            document.getElementById('lbl-ahorro').innerText = data.ahorro + " segundos";
+    <!-- SEMÁFORO OESTE -->
+    <circle id="oeste_rojo" class="semaforo" cx="460" cy="430" r="12" fill="red"/>
+    <circle id="oeste_amarillo" class="semaforo" cx="430" cy="430" r="12" fill="#333"/>
+    <circle id="oeste_verde" class="semaforo" cx="400" cy="430" r="12" fill="#333"/>
 
-            // Control Dinámico de Alerta de Sensores
-            const zones = ["zone-v1", "zone-v2", "zone-v3", "zone-v4", "zone-v5"];
-            for(let i = 0; i < 5; i++) {
-                let box = document.getElementById(zones[i]);
-                let icon = box.querySelector('svg');
-                let detected = data['s' + (i+1)];
+    <!-- SEMÁFORO ESTE -->
+    <circle id="este_rojo" class="semaforo" cx="740" cy="270" r="12" fill="red"/>
+    <circle id="este_amarillo" class="semaforo" cx="770" cy="270" r="12" fill="#333"/>
+    <circle id="este_verde" class="semaforo" cx="800" cy="270" r="12" fill="#333"/>
 
-                if(detected) {
-                    // Si detecta carro, se ilumina en rojo neón transparente y muestra el icono
-                    box.className = box.className.replace(/bg-red-500\/\d+/g, 'bg-red-500/20');
-                    box.classList.add('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.5)]');
-                    if(icon) icon.classList.remove('opacity-0');
-                } else {
-                    // Si no, vuelve a ser totalmente transparente
-                    box.className = box.className.replace(/bg-red-500\/\d+/g, 'bg-red-500/0');
-                    box.classList.remove('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.5)]');
-                    if(icon) icon.classList.add('opacity-0');
-                }
-            }
+    <!-- SENSORES -->
 
-            // Reinicio de Semáforos a apagado (gris oscuro)
-            const sems = ["tl-v1", "tl-v2", "tl-v3", "tl-v4", "tl-v5"];
-            for(let i = 0; i < 5; i++) {
-                let s = document.getElementById(sems[i]);
-                s.querySelector('.r').style.backgroundColor = '#1e293b';
-                s.querySelector('.a').style.backgroundColor = '#1e293b';
-                s.querySelector('.v').style.backgroundColor = '#1e293b';
-            }
+    <circle id="s1" class="sensor" cx="600" cy="150" r="15"/>
+    <text x="620" y="155" class="texto">S1</text>
 
-            // Encendido de fases de semáforos activos
-            let activeIdx = data.via_activa;
-            for(let i = 0; i < 5; i++) {
-                let s = document.getElementById(sems[i]);
-                if(i === activeIdx) {
-                    if(data.estado === "CRUCE LIBRE") s.querySelector('.v').style.backgroundColor = '#10b981';
-                    else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") s.querySelector('.a').style.backgroundColor = '#f59e0b';
-                    else s.querySelector('.r').style.backgroundColor = '#ef4444';
-                } else {
-                    s.querySelector('.r').style.backgroundColor = '#ef4444';
-                }
-            }
-        });
+    <circle id="s2" class="sensor" cx="250" cy="350" r="15"/>
+    <text x="270" y="355" class="texto">S2</text>
 
-        // FUNCIONES DE CONTROL REMOTO DESDE LA WEB
-        function conmutarModo() {
-            db.child('modo').transaction(current => !current);
-            appendLog("Comando Cloud: Conmutación de algoritmo");
-        }
+    <circle id="s3" class="sensor" cx="600" cy="600" r="15"/>
+    <text x="620" y="605" class="texto">S3</text>
 
-        function recalibrarVias() {
-            db.update({ estado: "CALIBRANDO DESDE INTERNET" });
-            appendLog("Comando Cloud: Forzar calibración de sensores analógicos");
-        }
+    <circle id="s4" class="sensor" cx="950" cy="350" r="15"/>
+    <text x="970" y="355" class="texto">S4</text>
 
-        // Inicializar iconos de Lucide
-        lucide.createIcons();
-    </script>
+    <circle id="s5" class="sensor" cx="850" cy="150" r="15"/>
+    <text x="870" y="155" class="texto">S5</text>
+
+</svg>
+
+<!-- FIREBASE -->
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    databaseURL: "https://tu-proyecto-seiat-default-rtdb.firebaseio.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "XXXXXXXX",
+    appId: "XXXXXXXX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const datosRef = ref(db, 'interseccion');
+
+onValue(datosRef, (snapshot) => {
+
+    const data = snapshot.val();
+
+    if(!data) return;
+
+    // PANEL
+    document.getElementById("estadoTexto").innerText = data.estado;
+    document.getElementById("viaActiva").innerText = data.via_activa;
+    document.getElementById("modo").innerText =
+        data.modo ? "Adaptativo" : "Manual";
+
+    // SENSORES
+    actualizarSensor("s1", data.s1);
+    actualizarSensor("s2", data.s2);
+    actualizarSensor("s3", data.s3);
+    actualizarSensor("s4", data.s4);
+    actualizarSensor("s5", data.s5);
+
+    // SEMÁFOROS
+    actualizarSemaforos(data.estado);
+
+});
+
+function actualizarSensor(id, activo){
+    const sensor = document.getElementById(id);
+
+    if(activo){
+        sensor.classList.add("activo");
+    }else{
+        sensor.classList.remove("activo");
+    }
+}
+
+function apagarTodos(){
+
+    const colores = [
+        "norte","sur","este","oeste"
+    ];
+
+    colores.forEach(dir => {
+
+        document.getElementById(dir+"_rojo").setAttribute("fill","#333");
+        document.getElementById(dir+"_amarillo").setAttribute("fill","#333");
+        document.getElementById(dir+"_verde").setAttribute("fill","#333");
+
+    });
+}
+
+function actualizarSemaforos(estado){
+
+    apagarTodos();
+
+    // EJEMPLOS
+    // NORTE_VERDE
+    // SUR_VERDE
+    // ESTE_VERDE
+    // OESTE_VERDE
+
+    if(estado.includes("NORTE")){
+        document.getElementById("norte_verde")
+            .setAttribute("fill","lime");
+    }
+
+    if(estado.includes("SUR")){
+        document.getElementById("sur_verde")
+            .setAttribute("fill","lime");
+    }
+
+    if(estado.includes("ESTE")){
+        document.getElementById("este_verde")
+            .setAttribute("fill","lime");
+    }
+
+    if(estado.includes("OESTE")){
+        document.getElementById("oeste_verde")
+            .setAttribute("fill","lime");
+    }
+
+}
+
+</script>
+
 </body>
 </html>
