@@ -3,225 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEIAT Cloud — Smart Traffic Hub SVG</title>
+    <title>SEIAT Cloud — Smart City Traffic Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <style>
-        :root {
-            --bg-main: #0b0f19;
-            --bg-card: #131a26;
-            --border: #243247;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --road-dark: #1e293b;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg-main);
-            color: #f3f4f6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 28px;
-            background: linear-gradient(90deg, #10b981, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        header p { margin: 5px 0 0 0; color: #6b7280; font-size: 14px; }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        @media (min-width: 940px) {
-            .dashboard-grid { grid-template-columns: 600px 1fr; }
-        }
-
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
-        }
-
-        /* --- CONTENEDOR DEL MAPA VECTORIAL --- */
-        .map-viewport {
-            background: radial-gradient(circle at center, #162235 0%, #0d1527 100%);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #1e293b;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
-
-        svg {
-            width: 100%;
-            height: auto;
-            max-height: 480px;
-        }
-
-        /* Estilos dinámicos para los elementos del SVG */
-        .road-lane {
-            fill: var(--road-dark);
-            stroke: #2e3d56;
-            stroke-width: 2;
-            transition: all 0.4s ease;
-        }
-
-        /* Estados de alerta de sensores sobre el asfalto vectorizado */
-        .lane-active {
-            fill: rgba(239, 68, 68, 0.25) !important;
-            stroke: var(--danger) !important;
-            filter: drop-shadow(0px 0px 8px var(--danger));
-        }
-
-        /* Flujo activo en verde */
-        .lane-flow {
-            fill: rgba(16, 185, 129, 0.15) !important;
-            stroke: var(--accent) !important;
-        }
-
-        .center-node { fill: #2a364f; stroke: #3d4f73; stroke-width: 2; }
-        .dashed-line { stroke: #f59e0b; stroke-width: 2; stroke-dasharray: 6,6; opacity: 0.5; }
-        .car-node { fill: #ffffff; filter: drop-shadow(0px 0px 6px #fff); display: none; transition: 0.2s; }
-        .sem-bg { fill: #111827; stroke: #374151; stroke-width: 1.5; rx: 4px; }
-        .light { fill: #2d3748; transition: fill 0.2s ease; }
-
-        /* --- COMPONENTES DEL PANEL DE CONTROL --- */
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .panel-header h2 { margin: 0; font-size: 20px; }
-        .status-badge {
-            background-color: rgba(16, 185, 128, 0.15);
-            color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(16, 185, 128, 0.3);
-        }
-        .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .metric-tile { background-color: rgba(31, 41, 55, 0.5); border: 1px solid var(--border); padding: 15px; border-radius: 12px; }
-        .metric-tile span { display: block; color: #9ca3af; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; }
-        .metric-tile div { font-size: 18px; font-weight: bold; }
-        .console { background-color: #070a12; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 13px; color: #3b82f6; height: 90px; overflow-y: auto; }
-        .action-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-cloud { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
-        .btn-primary { background-color: #3b82f6; color: white; }
-        .btn-primary:hover { background-color: #2563eb; }
-        .btn-secondary { background-color: #374151; color: #d1d5db; }
-        .btn-secondary:hover { background-color: #4b5563; }
-    </style>
 </head>
-<body>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col items-center p-4 md:p-6 selection:bg-emerald-500 selection:text-slate-900">
 
-    <header>
-        <h1>SEIAT Cloud — Smart City Control Hub</h1>
-        <p>Monitoreo Vectorial Avanzado y Telemetría en Tiempo Real — Universidad Popular del Cesar</p>
+    <header class="w-full max-w-6xl mb-6 flex flex-col md:flex-row md:justify-between md:items-center border-b border-slate-800 pb-4 gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
+                SEIAT Cloud — Control Inteligente de Tráfico
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Plataforma de Analítica y Supervisión Remota de Intersecciones — UPC</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-full text-xs">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span id="lbl-net" class="font-medium text-slate-400 tracking-wide">Sincronizado con Firebase</span>
+        </div>
     </header>
 
-    <div class="dashboard-grid">
-        <div class="card">
-            <div class="map-viewport">
-                <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="250" y1="250" x2="110" y2="60" class="dashed-line" />
-                    <line x1="250" y1="250" x2="30" y2="250" class="dashed-line" />
-                    <line x1="250" y1="250" x2="250" y2="470" class="dashed-line" />
-                    <line x1="250" y1="250" x2="390" y2="60" class="dashed-line" />
-                    <line x1="250" y1="250" x2="470" y2="250" class="dashed-line" />
-
-                    <polygon id="v1-lane" points="135,45 85,80 215,235 245,210" class="road-lane" />
-                    <polygon id="v2-lane" points="30,225 30,275 210,275 210,225" class="road-lane" />
-                    <polygon id="v3-lane" points="225,470 275,470 275,290 225,290" class="road-lane" />
-                    <polygon id="v4-lane" points="365,45 415,80 285,235 255,210" class="road-lane" />
-                    <polygon id="v5-lane" points="470,225 470,275 290,275 290,225" class="road-lane" />
-
-                    <circle cx="250" cy="250" r="45" class="center-node" />
-
-                    <rect id="c1" x="145" y="125" width="22" height="14" rx="3" transform="rotate(38, 145, 125)" class="car-node" />
-                    <rect id="c2" x="100" y="233" width="24" height="14" rx="3" class="car-node" />
-                    <rect id="c3" x="238" y="370" width="14" height="24" rx="3" class="car-node" />
-                    <rect id="c4" x="335" y="140" width="22" height="14" rx="3" transform="rotate(-38, 335, 140)" class="car-node" />
-                    <rect id="c5" x="370" y="233" width="24" height="14" rx="3" class="car-node" />
-
-                    <g id="sem1"><rect x="180" y="170" width="14" height="32" class="sem-bg"/><circle id="s1-r" cx="187" cy="176" r="4" class="light"/><circle id="s1-a" cx="187" cy="186" r="4" class="light"/><circle id="s1-v" cx="187" cy="196" r="4" class="light"/></g>
-                    <g id="sem2"><rect x="180" y="210" width="32" height="14" class="sem-bg"/><circle id="s2-r" cx="186" cy="217" r="4" class="light"/><circle id="s2-a" cx="196" cy="217" r="4" class="light"/><circle id="s2-v" cx="206" cy="217" r="4" class="light"/></g>
-                    <g id="sem3"><rect x="210" y="295" width="14" height="32" class="sem-bg"/><circle id="s3-r" cx="217" cy="301" r="4" class="light"/><circle id="s3-a" cx="217" cy="311" r="4" class="light"/><circle id="s3-v" cx="217" cy="321" r="4" class="light"/></g>
-                    <g id="sem4"><rect x="305" y="170" width="14" height="32" class="sem-bg"/><circle id="s4-r" cx="312" cy="176" r="4" class="light"/><circle id="s4-a" cx="312" cy="186" r="4" class="light"/><circle id="s4-v" cx="312" cy="196" r="4" class="light"/></g>
-                    <g id="sem5"><rect x="290" y="210" width="32" height="14" class="sem-bg"/><circle id="s5-r" cx="296" cy="217" r="4" class="light"/><circle id="s5-a" cx="306" cy="217" r="4" class="light"/><circle id="s5-v" cx="316" cy="217" r="4" class="light"/></g>
-                </svg>
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <section class="lg:col-span-7 bg-[#131a26] border border-slate-800/80 rounded-2xl p-4 shadow-xl shadow-black/40">
+            <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
+                <i data-lucide="map" class="text-emerald-400 w-5 h-5"></i>
+                <h2 class="text-base font-semibold text-slate-200">Vista de Intersección</h2>
             </div>
-        </div>
+            
+            <div class="relative w-full aspect-square md:h-[480px] md:w-auto mx-auto bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner" 
+                 style="background-image: url('mapa-interseccion.png'); background-size: cover; background-position: center;">
+                
+                <div class="absolute inset-0 bg-gradient-to-b from-slate-950/20 to-slate-950/80 pointer-events-none"></div>
 
-        <div class="card">
-            <div class="panel-header">
-                <h2>Métricas del Nodo Cloud</h2>
-                <span class="status-badge">Sincronizado</span>
-            </div>
+                <div id="zone-v1" class="absolute top-[20%] left-[30%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
+                </div>
+                <div id="zone-v2" class="absolute top-[45%] left-[15%] -translate-x-1/2 -translate-y-1/2 w-16 h-10 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
+                </div>
+                <div id="zone-v3" class="absolute top-[75%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
+                </div>
+                <div id="zone-v4" class="absolute top-[20%] left-[70%] -translate-x-1/2 -translate-y-1/2 w-10 h-16 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
+                </div>
+                <div id="zone-v5" class="absolute top-[45%] left-[85%] -translate-x-1/2 -translate-y-1/2 w-16 h-10 bg-red-500/0 rounded-lg border-2 border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="car" class="w-6 h-6 text-white opacity-0 transition-opacity"></i>
+                </div>
 
-            <div class="metric-row">
-                <div class="metric-tile">
-                    <span>Algoritmo Operativo</span>
-                    <div id="lbl-modo" style="color: #3b82f6;">-</div>
+                <div id="tl-v1" class="absolute top-[35%] left-[38%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
                 </div>
-                <div class="metric-tile">
-                    <span>Flujo Priorizado</span>
-                    <div id="lbl-via" style="color: #10b981;">-</div>
+                <div id="tl-v2" class="absolute top-[40%] left-[30%] bg-slate-950 border border-slate-800 p-1 rounded flex gap-1 shadow-lg shadow-black/50">
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
                 </div>
-            </div>
-
-            <div class="metric-row">
-                <div class="metric-tile">
-                    <span>Estado Fase</span>
-                    <div id="lbl-fase">-</div>
+                <div id="tl-v3" class="absolute top-[60%] left-[45%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
                 </div>
-                <div class="metric-tile">
-                    <span>Optimización de Tiempo</span>
-                    <div id="lbl-ahorro" style="color: #f59e0b;">0s salvados</div>
+                <div id="tl-v4" class="absolute top-[35%] left-[58%] bg-slate-950 border border-slate-800 p-1 rounded flex flex-col gap-1 shadow-lg shadow-black/50">
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
+                </div>
+                <div id="tl-v5" class="absolute top-[40%] left-[65%] bg-slate-950 border border-slate-800 p-1 rounded flex gap-1 shadow-lg shadow-black/50">
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 r"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 a"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800 transition-colors duration-200 v"></div>
                 </div>
             </div>
+        </section>
 
-            <h3>Consola de Eventos Recientes</h3>
-            <div class="console" id="log-console">> Enlace listo.<br>> Conectado a los sistemas de telemetría de la UPC.</div>
+        <section class="lg:col-span-5 flex flex-col gap-6 w-full">
+            
+            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
+                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
+                    <i data-lucide="cpu" class="text-blue-400 w-5 h-5"></i>
+                    <h2 class="text-base font-semibold text-slate-200">Telemetría del Nodo</h2>
+                </div>
 
-            <div class="action-container">
-                <button class="btn-cloud btn-primary" onclick="conmutarModo()">Conmutar Modo</button>
-                <button class="btn-cloud btn-secondary" onclick="recalibrarVias()">Calibrar Sensores</button>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Algoritmo</span>
+                        <div id="lbl-modo" class="text-sm font-bold text-blue-400">-</div>
+                    </div>
+                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Paso Priorizado</span>
+                        <div id="lbl-via" class="text-sm font-bold text-emerald-400">-</div>
+                    </div>
+                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Fase Actual</span>
+                        <div id="lbl-fase" class="text-sm font-bold text-slate-200">-</div>
+                    </div>
+                    <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Tiempo Salvado</span>
+                        <div id="lbl-ahorro" class="text-sm font-bold text-amber-400">0s</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+
+            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
+                <div class="flex items-center gap-2 mb-3 border-b border-slate-800/50 pb-2">
+                    <i data-lucide="terminal" class="text-amber-400 w-5 h-5"></i>
+                    <h2 class="text-base font-semibold text-slate-200">Consola del Sistema</h2>
+                </div>
+                <div id="log-console" class="bg-slate-950 border border-slate-900 p-3 rounded-xl font-mono text-xs text-blue-400 h-24 overflow-y-auto space-y-1 scrollbar-thin">
+                    <div>> Enlace listo con la red IoT de la UPC.</div>
+                </div>
+            </div>
+
+            <div class="bg-[#131a26] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/40">
+                <div class="flex items-center gap-2 mb-4 border-b border-slate-800/50 pb-2">
+                    <i data-lucide="sliders" class="text-purple-400 w-5 h-5"></i>
+                    <h2 class="text-base font-semibold text-slate-200">Acciones Cloud</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="conmutarModo()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 cursor-pointer">
+                        Conmutar Algoritmo
+                    </button>
+                    <button onclick="recalibrarVias()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs py-3 rounded-xl transition-all active:scale-95 cursor-pointer">
+                        Forzar Calibración
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
 
     <script>
-        // CONFIGURACIÓN DE TU BASE DE DATOS DE FIREBASE
+        // CONFIGURACIÓN DE FIREBASE (Asegúrate de cambiar esto por tus credenciales reales)
         const firebaseConfig = {
             databaseURL: "https://semaforo-seiat-default-rtdb.firebaseio.com"
         };
@@ -230,74 +150,80 @@
 
         function appendLog(txt) {
             const con = document.getElementById('log-console');
-            con.innerHTML += `<br>> ${txt}`;
+            const newElement = document.createElement('div');
+            newElement.innerText = `> ${txt}`;
+            con.appendChild(newElement);
             con.scrollTop = con.scrollHeight;
         }
 
+        // CONTROLADOR DE EVENTOS EN TIEMPO REAL
         db.on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
 
-            const nombresVias = ["Norte-Oeste", "Oeste", "Sur", "Norte-Este", "Este"];
-            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO (INTELIGENTE)" : "ESTÁTICO FIJO";
+            // Actualización de Métricas Textuales
+            const nombresVias = ["Norte-Oeste (V1)", "Oeste (V2)", "Sur (V3)", "Norte-Este (V4)", "Este (V5)"];
+            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO DE FLUJO" : "CICLO ESTÁTICO FIJO";
             document.getElementById('lbl-via').innerText = nombresVias[data.via_activa] || "Ninguna";
             document.getElementById('lbl-fase').innerText = data.estado;
             document.getElementById('lbl-ahorro').innerText = data.ahorro + " segundos";
 
-            // Control de Estados de los Sensores y Dibujo de Autos Virtuales
-            const lanesDom = ["v1-lane", "v2-lane", "v3-lane", "v4-lane", "v5-lane"];
-            const carsDom = ["c1", "c2", "c3", "c4", "c5"];
-
+            // Control Dinámico de Alerta de Sensores
+            const zones = ["zone-v1", "zone-v2", "zone-v3", "zone-v4", "zone-v5"];
             for(let i = 0; i < 5; i++) {
-                let laneElement = document.getElementById(lanesDom[i]);
-                let carElement = document.getElementById(carsDom[i]);
+                let box = document.getElementById(zones[i]);
+                let icon = box.querySelector('svg');
                 let detected = data['s' + (i+1)];
 
                 if(detected) {
-                    laneElement.classList.add('lane-active');
-                    carElement.style.display = 'block';
+                    // Si detecta carro, se ilumina en rojo neón transparente y muestra el icono
+                    box.className = box.className.replace(/bg-red-500\/\d+/g, 'bg-red-500/20');
+                    box.classList.add('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.5)]');
+                    if(icon) icon.classList.remove('opacity-0');
                 } else {
-                    laneElement.classList.remove('lane-active');
-                    carElement.style.display = 'none';
+                    // Si no, vuelve a ser totalmente transparente
+                    box.className = box.className.replace(/bg-red-500\/\d+/g, 'bg-red-500/0');
+                    box.classList.remove('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.5)]');
+                    if(icon) icon.classList.add('opacity-0');
                 }
             }
 
-            // Apagar todas las luces de los semáforos vectoriales antes de actualizar
-            for(let i = 1; i <= 5; i++) {
-                document.getElementById(`s${i}-r`).style.fill = '#1f2937';
-                document.getElementById(`s${i}-a`).style.fill = '#1f2937';
-                document.getElementById(`s${i}-v`).style.fill = '#1f2937';
-                document.getElementById(`${lanesDom[i-1]}`).classList.remove('lane-flow'); // Quitar color verde
+            // Reinicio de Semáforos a apagado (gris oscuro)
+            const sems = ["tl-v1", "tl-v2", "tl-v3", "tl-v4", "tl-v5"];
+            for(let i = 0; i < 5; i++) {
+                let s = document.getElementById(sems[i]);
+                s.querySelector('.r').style.backgroundColor = '#1e293b';
+                s.querySelector('.a').style.backgroundColor = '#1e293b';
+                s.querySelector('.v').style.backgroundColor = '#1e293b';
             }
 
-            // Encender semáforo activo y poner restrictivo (Rojo) el resto
+            // Encendido de fases de semáforos activos
             let activeIdx = data.via_activa;
             for(let i = 0; i < 5; i++) {
-                let n = i + 1;
+                let s = document.getElementById(sems[i]);
                 if(i === activeIdx) {
-                    if(data.estado === "CRUCE LIBRE") {
-                        document.getElementById(`s${n}-v`).style.fill = '#10b981';
-                        document.getElementById(lanesDom[i]).classList.add('lane-flow'); // Iluminar carril verde
-                    } else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") {
-                        document.getElementById(`s${n}-a`).style.fill = '#f59e0b';
-                    } else {
-                        document.getElementById(`s${n}-r`).style.fill = '#ef4444';
-                    }
+                    if(data.estado === "CRUCE LIBRE") s.querySelector('.v').style.backgroundColor = '#10b981';
+                    else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") s.querySelector('.a').style.backgroundColor = '#f59e0b';
+                    else s.querySelector('.r').style.backgroundColor = '#ef4444';
                 } else {
-                    document.getElementById(`s${n}-r`).style.fill = '#ef4444';
+                    s.querySelector('.r').style.backgroundColor = '#ef4444';
                 }
             }
         });
 
+        // FUNCIONES DE CONTROL REMOTO DESDE LA WEB
         function conmutarModo() {
             db.child('modo').transaction(current => !current);
-            appendLog("Comando Cloud: Intercambio de Algoritmo enviado.");
+            appendLog("Comando Cloud: Conmutación de algoritmo");
         }
 
         function recalibrarVias() {
-            db.update({ estado: "CALIBRANDO WEB" });
-            appendLog("Comando Cloud: Forzando recalibración en caliente.");
+            db.update({ estado: "CALIBRANDO DESDE INTERNET" });
+            appendLog("Comando Cloud: Forzar calibración de sensores analógicos");
         }
+
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
     </script>
 </body>
 </html>
