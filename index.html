@@ -3,240 +3,584 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEIAT - Monitoreo de Intersección</title>
+
+<title>SEIAT - Intersección Inteligente</title>
 
 <style>
-    body{
-        margin:0;
-        background:#081120;
-        font-family:Arial, Helvetica, sans-serif;
-        color:white;
-        overflow:hidden;
-    }
 
-    .panel{
-        position:absolute;
-        top:20px;
-        left:20px;
-        width:260px;
-        background:#101b33;
-        border:1px solid #1e3a5f;
-        border-radius:10px;
-        padding:15px;
-        box-shadow:0 0 15px rgba(0,255,255,0.2);
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .panel h2{
-        margin-top:0;
-        color:#00d9ff;
-    }
+body{
+    background:#081223;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+    color:white;
+}
 
-    .estado{
-        margin:10px 0;
-        font-size:18px;
-    }
+/* ===========================
+   CONTENEDOR PRINCIPAL
+=========================== */
 
-    svg{
-        width:100vw;
-        height:100vh;
-    }
+.dashboard{
+    width:100vw;
+    height:100vh;
+    display:flex;
+}
 
-    .sensor{
-        fill:#333;
-        stroke:white;
-        stroke-width:2;
-    }
+/* ===========================
+   PANEL IZQUIERDO
+=========================== */
 
-    .sensor.activo{
-        fill:#00ff00;
-        filter: drop-shadow(0px 0px 8px lime);
-    }
+.left-panel{
+    width:300px;
+    background:#0d1b2d;
+    padding:20px;
+    border-right:2px solid #10345c;
+}
 
-    .semaforo{
-        stroke:#222;
-        stroke-width:2;
-    }
+.card{
+    background:#12233d;
+    border:1px solid #1f4b7a;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:20px;
+    box-shadow:0 0 10px rgba(0,255,255,0.1);
+}
 
-    .texto{
-        fill:white;
-        font-size:16px;
-    }
+.card h2{
+    color:#00d9ff;
+    margin-bottom:10px;
+    font-size:18px;
+}
+
+.estado{
+    margin:10px 0;
+    font-size:17px;
+}
+
+/* ===========================
+   CENTRO
+=========================== */
+
+.center{
+    flex:1;
+    position:relative;
+}
+
+/* ===========================
+   PANEL DERECHO
+=========================== */
+
+.right-panel{
+    width:300px;
+    background:#0d1b2d;
+    padding:20px;
+    border-left:2px solid #10345c;
+}
+
+/* ===========================
+   SVG
+=========================== */
+
+svg{
+    width:100%;
+    height:100%;
+}
+
+/* CALLES */
+
+.road{
+    fill:#5b5b5b;
+}
+
+.line{
+    stroke:yellow;
+    stroke-width:4;
+    stroke-dasharray:18 12;
+}
+
+/* SEMÁFOROS */
+
+.light-off{
+    fill:#222;
+}
+
+.red{
+    fill:red;
+    filter:drop-shadow(0 0 8px red);
+}
+
+.yellow{
+    fill:yellow;
+    filter:drop-shadow(0 0 8px yellow);
+}
+
+.green{
+    fill:lime;
+    filter:drop-shadow(0 0 8px lime);
+}
+
+/* SENSORES */
+
+.sensor{
+    fill:#333;
+    stroke:white;
+    stroke-width:2;
+}
+
+.sensor.active{
+    fill:#00ff88;
+    filter:drop-shadow(0 0 10px #00ff88);
+}
+
+/* TEXTO */
+
+.label{
+    fill:white;
+    font-size:14px;
+}
+
+.title{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#00d9ff;
+    font-size:30px;
+    font-weight:bold;
+    text-shadow:0 0 10px cyan;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="panel">
-    <h2>SEIAT</h2>
+<div class="dashboard">
 
-    <div class="estado">
-        Estado:
-        <span id="estadoTexto">Cargando...</span>
+    <!-- PANEL IZQUIERDO -->
+
+    <div class="left-panel">
+
+        <div class="card">
+            <h2>Estado General</h2>
+
+            <div class="estado">
+                Estado:
+                <span id="estadoTexto">Cargando...</span>
+            </div>
+
+            <div class="estado">
+                Vía activa:
+                <span id="viaActiva">-</span>
+            </div>
+
+            <div class="estado">
+                Modo:
+                <span id="modoSistema">-</span>
+            </div>
+
+        </div>
+
+        <div class="card">
+            <h2>Sensores</h2>
+
+            <div>S1 Norte Oeste</div>
+            <div>S2 Oeste</div>
+            <div>S3 Sur</div>
+            <div>S4 Norte Este</div>
+            <div>S5 Este</div>
+        </div>
+
     </div>
 
-    <div class="estado">
-        Vía activa:
-        <span id="viaActiva">-</span>
-    </div>
+    <!-- CENTRO -->
 
-    <div class="estado">
-        Modo:
-        <span id="modo">-</span>
-    </div>
-</div>
+    <div class="center">
 
-<svg viewBox="0 0 1200 700">
+        <div class="title">
+            SEIAT - INTERSECCIÓN INTELIGENTE
+        </div>
 
-    <!-- CALLES -->
+<svg viewBox="0 0 1400 900">
 
-    <rect x="0" y="300" width="1200" height="100" fill="#555"/>
-    <rect x="550" y="0" width="100" height="700" fill="#555"/>
+    <!-- FONDO -->
 
-    <!-- LÍNEAS -->
-    <line x1="0" y1="350" x2="1200" y2="350"
-          stroke="yellow" stroke-width="4" stroke-dasharray="20 10"/>
+    <rect width="1400" height="900" fill="#081223"/>
 
-    <line x1="600" y1="0" x2="600" y2="700"
-          stroke="yellow" stroke-width="4" stroke-dasharray="20 10"/>
+    <!-- CALLE HORIZONTAL -->
 
-    <!-- SEMÁFORO NORTE -->
-    <circle id="norte_rojo" class="semaforo" cx="530" cy="240" r="12" fill="red"/>
-    <circle id="norte_amarillo" class="semaforo" cx="530" cy="270" r="12" fill="#333"/>
-    <circle id="norte_verde" class="semaforo" cx="530" cy="300" r="12" fill="#333"/>
+    <rect class="road"
+          x="0"
+          y="390"
+          width="1400"
+          height="120"/>
 
-    <!-- SEMÁFORO SUR -->
-    <circle id="sur_rojo" class="semaforo" cx="670" cy="460" r="12" fill="red"/>
-    <circle id="sur_amarillo" class="semaforo" cx="670" cy="490" r="12" fill="#333"/>
-    <circle id="sur_verde" class="semaforo" cx="670" cy="520" r="12" fill="#333"/>
+    <!-- CALLE VERTICAL -->
 
-    <!-- SEMÁFORO OESTE -->
-    <circle id="oeste_rojo" class="semaforo" cx="460" cy="430" r="12" fill="red"/>
-    <circle id="oeste_amarillo" class="semaforo" cx="430" cy="430" r="12" fill="#333"/>
-    <circle id="oeste_verde" class="semaforo" cx="400" cy="430" r="12" fill="#333"/>
+    <rect class="road"
+          x="640"
+          y="0"
+          width="120"
+          height="900"/>
 
-    <!-- SEMÁFORO ESTE -->
-    <circle id="este_rojo" class="semaforo" cx="740" cy="270" r="12" fill="red"/>
-    <circle id="este_amarillo" class="semaforo" cx="770" cy="270" r="12" fill="#333"/>
-    <circle id="este_verde" class="semaforo" cx="800" cy="270" r="12" fill="#333"/>
+    <!-- CALLES DIAGONALES -->
+
+    <polygon class="road"
+        points="
+        520,390
+        620,390
+        350,120
+        250,120
+        "/>
+
+    <polygon class="road"
+        points="
+        780,390
+        880,390
+        1150,120
+        1050,120
+        "/>
+
+    <!-- LINEAS -->
+
+    <line class="line"
+          x1="0"
+          y1="450"
+          x2="1400"
+          y2="450"/>
+
+    <line class="line"
+          x1="700"
+          y1="0"
+          x2="700"
+          y2="900"/>
+
+    <!-- SEMAFORO NORTE -->
+
+    <circle id="norte_rojo"
+            cx="620"
+            cy="300"
+            r="12"
+            class="red"/>
+
+    <circle id="norte_amarillo"
+            cx="620"
+            cy="330"
+            r="12"
+            class="light-off"/>
+
+    <circle id="norte_verde"
+            cx="620"
+            cy="360"
+            r="12"
+            class="light-off"/>
+
+    <!-- SEMAFORO SUR -->
+
+    <circle id="sur_rojo"
+            cx="780"
+            cy="600"
+            r="12"
+            class="red"/>
+
+    <circle id="sur_amarillo"
+            cx="780"
+            cy="630"
+            r="12"
+            class="light-off"/>
+
+    <circle id="sur_verde"
+            cx="780"
+            cy="660"
+            r="12"
+            class="light-off"/>
+
+    <!-- SEMAFORO OESTE -->
+
+    <circle id="oeste_rojo"
+            cx="520"
+            cy="540"
+            r="12"
+            class="red"/>
+
+    <circle id="oeste_amarillo"
+            cx="490"
+            cy="540"
+            r="12"
+            class="light-off"/>
+
+    <circle id="oeste_verde"
+            cx="460"
+            cy="540"
+            r="12"
+            class="light-off"/>
+
+    <!-- SEMAFORO ESTE -->
+
+    <circle id="este_rojo"
+            cx="880"
+            cy="360"
+            r="12"
+            class="red"/>
+
+    <circle id="este_amarillo"
+            cx="910"
+            cy="360"
+            r="12"
+            class="light-off"/>
+
+    <circle id="este_verde"
+            cx="940"
+            cy="360"
+            r="12"
+            class="light-off"/>
 
     <!-- SENSORES -->
 
-    <circle id="s1" class="sensor" cx="600" cy="150" r="15"/>
-    <text x="620" y="155" class="texto">S1</text>
+    <circle id="s1"
+            class="sensor"
+            cx="430"
+            cy="220"
+            r="16"/>
 
-    <circle id="s2" class="sensor" cx="250" cy="350" r="15"/>
-    <text x="270" y="355" class="texto">S2</text>
+    <circle id="s2"
+            class="sensor"
+            cx="180"
+            cy="450"
+            r="16"/>
 
-    <circle id="s3" class="sensor" cx="600" cy="600" r="15"/>
-    <text x="620" y="605" class="texto">S3</text>
+    <circle id="s3"
+            class="sensor"
+            cx="700"
+            cy="780"
+            r="16"/>
 
-    <circle id="s4" class="sensor" cx="950" cy="350" r="15"/>
-    <text x="970" y="355" class="texto">S4</text>
+    <circle id="s4"
+            class="sensor"
+            cx="980"
+            cy="220"
+            r="16"/>
 
-    <circle id="s5" class="sensor" cx="850" cy="150" r="15"/>
-    <text x="870" y="155" class="texto">S5</text>
+    <circle id="s5"
+            class="sensor"
+            cx="1180"
+            cy="450"
+            r="16"/>
 
 </svg>
+
+    </div>
+
+    <!-- PANEL DERECHO -->
+
+    <div class="right-panel">
+
+        <div class="card">
+
+            <h2>Estado Sensores</h2>
+
+            <div id="sensorInfo">
+                Esperando datos...
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Cloud</h2>
+
+            <div>
+                Firebase conectado
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- FIREBASE -->
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    onValue
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ===========================
+   CONFIG FIREBASE
+=========================== */
 
 const firebaseConfig = {
+
     apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    databaseURL: "https://tu-proyecto-seiat-default-rtdb.firebaseio.com",
+
+    authDomain:
+    "TU_PROYECTO.firebaseapp.com",
+
+    databaseURL:
+    "https://tu-proyecto-seiat-default-rtdb.firebaseio.com",
+
     projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "XXXXXXXX",
-    appId: "XXXXXXXX"
+
+    storageBucket:
+    "TU_PROYECTO.appspot.com",
+
+    messagingSenderId: "XXXXXX",
+
+    appId: "XXXXXX"
+
 };
 
+/* ===========================
+   INICIAR FIREBASE
+=========================== */
+
 const app = initializeApp(firebaseConfig);
+
 const db = getDatabase(app);
 
 const datosRef = ref(db, 'interseccion');
 
-onValue(datosRef, (snapshot) => {
+/* ===========================
+   ESCUCHAR DATOS
+=========================== */
+
+onValue(datosRef, (snapshot)=>{
 
     const data = snapshot.val();
 
     if(!data) return;
 
-    // PANEL
-    document.getElementById("estadoTexto").innerText = data.estado;
-    document.getElementById("viaActiva").innerText = data.via_activa;
-    document.getElementById("modo").innerText =
+    console.log(data);
+
+    /* PANEL */
+
+    document.getElementById("estadoTexto")
+        .innerText = data.estado;
+
+    document.getElementById("viaActiva")
+        .innerText = data.via_activa;
+
+    document.getElementById("modoSistema")
+        .innerText =
         data.modo ? "Adaptativo" : "Manual";
 
-    // SENSORES
+    /* SENSORES */
+
     actualizarSensor("s1", data.s1);
     actualizarSensor("s2", data.s2);
     actualizarSensor("s3", data.s3);
     actualizarSensor("s4", data.s4);
     actualizarSensor("s5", data.s5);
 
-    // SEMÁFOROS
+    /* SEMAFOROS */
+
     actualizarSemaforos(data.estado);
 
 });
 
+/* ===========================
+   SENSOR
+=========================== */
+
 function actualizarSensor(id, activo){
-    const sensor = document.getElementById(id);
+
+    const sensor =
+        document.getElementById(id);
 
     if(activo){
-        sensor.classList.add("activo");
+
+        sensor.classList.add("active");
+
     }else{
-        sensor.classList.remove("activo");
+
+        sensor.classList.remove("active");
+
     }
+
 }
+
+/* ===========================
+   APAGAR SEMAFOROS
+=========================== */
 
 function apagarTodos(){
 
-    const colores = [
-        "norte","sur","este","oeste"
+    const ids = [
+
+        "norte_rojo",
+        "norte_amarillo",
+        "norte_verde",
+
+        "sur_rojo",
+        "sur_amarillo",
+        "sur_verde",
+
+        "este_rojo",
+        "este_amarillo",
+        "este_verde",
+
+        "oeste_rojo",
+        "oeste_amarillo",
+        "oeste_verde"
+
     ];
 
-    colores.forEach(dir => {
+    ids.forEach(id=>{
 
-        document.getElementById(dir+"_rojo").setAttribute("fill","#333");
-        document.getElementById(dir+"_amarillo").setAttribute("fill","#333");
-        document.getElementById(dir+"_verde").setAttribute("fill","#333");
+        document.getElementById(id)
+            .setAttribute("class","light-off");
 
     });
+
 }
+
+/* ===========================
+   SEMAFOROS
+=========================== */
 
 function actualizarSemaforos(estado){
 
     apagarTodos();
 
-    // EJEMPLOS
-    // NORTE_VERDE
-    // SUR_VERDE
-    // ESTE_VERDE
-    // OESTE_VERDE
-
     if(estado.includes("NORTE")){
+
         document.getElementById("norte_verde")
-            .setAttribute("fill","lime");
+            .setAttribute("class","green");
+
     }
 
     if(estado.includes("SUR")){
+
         document.getElementById("sur_verde")
-            .setAttribute("fill","lime");
+            .setAttribute("class","green");
+
     }
 
     if(estado.includes("ESTE")){
+
         document.getElementById("este_verde")
-            .setAttribute("fill","lime");
+            .setAttribute("class","green");
+
     }
 
     if(estado.includes("OESTE")){
+
         document.getElementById("oeste_verde")
-            .setAttribute("fill","lime");
+            .setAttribute("class","green");
+
     }
 
 }
