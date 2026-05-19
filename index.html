@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEIAT Cloud — Centro de Control de Tráfico Urbano</title>
+    <title>SEIAT Cloud — Smart Traffic Hub SVG</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root {
             --bg-main: #0b0f19;
             --bg-card: #131a26;
-            --bg-road: #1f293d;
             --border: #243247;
             --accent: #10b981;
-            --accent-glow: rgba(16, 185, 129, 0.2);
             --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.3);
-            --warning: #f59e0b;
+            --road-dark: #1e293b;
         }
 
         body {
@@ -40,17 +37,12 @@
         header h1 {
             margin: 0;
             font-size: 28px;
-            letter-spacing: 1px;
             background: linear-gradient(90deg, #10b981, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        header p {
-            margin: 5px 0 0 0;
-            color: #6b7280;
-            font-size: 14px;
-        }
+        header p { margin: 5px 0 0 0; color: #6b7280; font-size: 14px; }
 
         .dashboard-grid {
             display: grid;
@@ -60,10 +52,8 @@
             max-width: 1100px;
         }
 
-        @media (min-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 550px 1fr;
-            }
+        @media (min-width: 940px) {
+            .dashboard-grid { grid-template-columns: 600px 1fr; }
         }
 
         .card {
@@ -75,108 +65,52 @@
             box-sizing: border-box;
         }
 
-        /* --- MAPA GEOMÉTRICO PREMIUM --- */
+        /* --- CONTENEDOR DEL MAPA VECTORIAL --- */
         .map-viewport {
-            height: 480px;
-            position: relative;
             background: radial-gradient(circle at center, #162235 0%, #0d1527 100%);
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid #1e293b;
-        }
-
-        .intersection-core {
-            position: absolute;
-            width: 90px;
-            height: 90px;
-            background-color: #2a364f;
-            top: 195px;
-            left: 230px;
-            border-radius: 24px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.4);
-            z-index: 2;
-        }
-
-        /* Estructura de Calles Anchas (Asfalto Real) */
-        .road {
-            position: absolute;
-            background-color: var(--bg-road);
-            transition: all 0.4s ease;
-            z-index: 1;
-        }
-
-        /* Líneas amarillas de carril */
-        .road::after {
-            content: "";
-            position: absolute;
-            border: 1px dashed rgba(245, 158, 11, 0.4);
-        }
-
-        .r-norte-oeste { width: 50px; height: 180px; top: 30px; left: 145px; transform: rotate(-38deg); border-radius: 8px 8px 0 0; }
-        .r-norte-oeste::after { height: 100%; left: 50%; border-left: 2px dashed rgba(245,158,11,0.4); }
-
-        .r-oeste { width: 200px; height: 50px; top: 215px; left: 30px; border-radius: 8px 0 0 8px; }
-        .r-oeste::after { width: 100%; top: 50%; border-top: 2px dashed rgba(245,158,11,0.4); }
-
-        .r-sur { width: 50px; height: 180px; bottom: 30px; left: 250px; border-radius: 0 0 8px 8px; }
-        .r-sur::after { height: 100%; left: 50%; border-left: 2px dashed rgba(245,158,11,0.4); }
-
-        .r-norte-este { width: 50px; height: 180px; top: 30px; right: 145px; transform: rotate(38deg); border-radius: 8px 8px 0 0; }
-        .r-norte-este::after { height: 100%; left: 50%; border-left: 2px dashed rgba(245,158,11,0.4); }
-
-        .r-este { width: 200px; height: 50px; top: 215px; right: 30px; border-radius: 0 8px 8px 0; }
-        .r-este::after { width: 100%; top: 50%; border-top: 2px dashed rgba(245,158,11,0.4); }
-
-        /* Estados de Alerta en Carriles (Detección de Sensor) */
-        .road.sensor-active {
-            background: linear-gradient(rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05));
-            box-shadow: 0 0 15px var(--danger-glow);
-        }
-
-        /* --- VEHÍCULOS ESTILIZADOS --- */
-        .vehicle {
-            position: absolute;
-            width: 26px;
-            height: 16px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 8px rgba(59, 130, 246, 0.5);
-            display: none;
-            z-index: 4;
-        }
-
-        #car-no { top: 90px; left: 155px; transform: rotate(-38deg); background: linear-gradient(135deg, #ec4899, #be185d); }
-        #car-o  { top: 232px; left: 100px; }
-        #car-s  { bottom: 90px; left: 252px; transform: rotate(90deg); background: linear-gradient(135deg, #10b981, #047857); }
-        #car-ne { top: 90px; right: 155px; transform: rotate(38deg); background: linear-gradient(135deg, #f59e0b, #b45309); }
-        #car-e  { top: 217px; right: 100px; }
-
-        /* --- SEMÁFOROS REALISTAS --- */
-        .tl-box {
-            position: absolute;
-            width: 16px;
-            height: 40px;
-            background: #111827;
-            border: 2px solid #374151;
-            border-radius: 6px;
             display: flex;
-            flex-direction: column;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
-            padding: 3px 0;
-            z-index: 5;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 10px;
         }
 
-        .light { width: 10px; height: 10px; background-color: #1f2937; border-radius: 50%; transition: all 0.2s ease; }
-        
-        #tl-no { top: 155px; left: 195px; }
-        #tl-o  { top: 210px; left: 195px; transform: rotate(90deg); }
-        #tl-s  { top: 290px; left: 267px; }
-        #tl-ne { top: 155px; left: 340px; }
-        #tl-e  { top: 210px; left: 340px; transform: rotate(90deg); }
+        svg {
+            width: 100%;
+            height: auto;
+            max-height: 480px;
+        }
 
-        /* --- SECCIÓN PANEL DE CONTROL DE DATOS --- */
+        /* Estilos dinámicos para los elementos del SVG */
+        .road-lane {
+            fill: var(--road-dark);
+            stroke: #2e3d56;
+            stroke-width: 2;
+            transition: all 0.4s ease;
+        }
+
+        /* Estados de alerta de sensores sobre el asfalto vectorizado */
+        .lane-active {
+            fill: rgba(239, 68, 68, 0.25) !important;
+            stroke: var(--danger) !important;
+            filter: drop-shadow(0px 0px 8px var(--danger));
+        }
+
+        /* Flujo activo en verde */
+        .lane-flow {
+            fill: rgba(16, 185, 129, 0.15) !important;
+            stroke: var(--accent) !important;
+        }
+
+        .center-node { fill: #2a364f; stroke: #3d4f73; stroke-width: 2; }
+        .dashed-line { stroke: #f59e0b; stroke-width: 2; stroke-dasharray: 6,6; opacity: 0.5; }
+        .car-node { fill: #ffffff; filter: drop-shadow(0px 0px 6px #fff); display: none; transition: 0.2s; }
+        .sem-bg { fill: #111827; stroke: #374151; stroke-width: 1.5; rx: 4px; }
+        .light { fill: #2d3748; transition: fill 0.2s ease; }
+
+        /* --- COMPONENTES DEL PANEL DE CONTROL --- */
         .panel-header {
             display: flex;
             justify-content: space-between;
@@ -185,9 +119,7 @@
             border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
         }
-
-        .panel-header h2 { margin: 0; font-size: 20px; color: #f3f4f6; }
-        
+        .panel-header h2 { margin: 0; font-size: 20px; }
         .status-badge {
             background-color: rgba(16, 185, 128, 0.15);
             color: var(--accent);
@@ -197,55 +129,13 @@
             font-weight: 600;
             border: 1px solid rgba(16, 185, 128, 0.3);
         }
-
-        .metric-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .metric-tile {
-            background-color: rgba(31, 41, 55, 0.5);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 12px;
-        }
-
+        .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .metric-tile { background-color: rgba(31, 41, 55, 0.5); border: 1px solid var(--border); padding: 15px; border-radius: 12px; }
         .metric-tile span { display: block; color: #9ca3af; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; }
-        .metric-tile div { font-size: 18px; font-weight: bold; color: #ffffff; }
-
-        /* Consola de estado analítico */
-        .console {
-            background-color: #070a12;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 13px;
-            color: #3b82f6;
-            height: 90px;
-            overflow-y: auto;
-        }
-
-        /* Botones de acción remota Cloud */
-        .action-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-cloud {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 13px;
-        }
-
+        .metric-tile div { font-size: 18px; font-weight: bold; }
+        .console { background-color: #070a12; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 13px; color: #3b82f6; height: 90px; overflow-y: auto; }
+        .action-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-cloud { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
         .btn-primary { background-color: #3b82f6; color: white; }
         .btn-primary:hover { background-color: #2563eb; }
         .btn-secondary { background-color: #374151; color: #d1d5db; }
@@ -255,44 +145,52 @@
 <body>
 
     <header>
-        <h1>SEIAT IoT — Urban Traffic Hub</h1>
-        <p>Centro de Analítica Operativa y Control Remoto en Tiempo Real — UPC</p>
+        <h1>SEIAT Cloud — Smart City Control Hub</h1>
+        <p>Monitoreo Vectorial Avanzado y Telemetría en Tiempo Real — Universidad Popular del Cesar</p>
     </header>
 
     <div class="dashboard-grid">
         <div class="card">
             <div class="map-viewport">
-                <div class="intersection-core"></div>
-                
-                <div id="v-no" class="road r-norte-oeste"></div>
-                <div id="v-o" class="road r-oeste"></div>
-                <div id="v-s" class="road r-sur"></div>
-                <div id="v-ne" class="road r-norte-este"></div>
-                <div id="v-e" class="road r-este"></div>
+                <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="250" y1="250" x2="110" y2="60" class="dashed-line" />
+                    <line x1="250" y1="250" x2="30" y2="250" class="dashed-line" />
+                    <line x1="250" y1="250" x2="250" y2="470" class="dashed-line" />
+                    <line x1="250" y1="250" x2="390" y2="60" class="dashed-line" />
+                    <line x1="250" y1="250" x2="470" y2="250" class="dashed-line" />
 
-                <div id="car-no" class="vehicle"></div>
-                <div id="car-o" class="vehicle"></div>
-                <div id="car-s" class="vehicle"></div>
-                <div id="car-ne" class="vehicle"></div>
-                <div id="car-e" class="vehicle"></div>
+                    <polygon id="v1-lane" points="135,45 85,80 215,235 245,210" class="road-lane" />
+                    <polygon id="v2-lane" points="30,225 30,275 210,275 210,225" class="road-lane" />
+                    <polygon id="v3-lane" points="225,470 275,470 275,290 225,290" class="road-lane" />
+                    <polygon id="v4-lane" points="365,45 415,80 285,235 255,210" class="road-lane" />
+                    <polygon id="v5-lane" points="470,225 470,275 290,275 290,225" class="road-lane" />
 
-                <div id="tl-no" class="tl-box"><div class="light r"></div><div class="light a"></div><div class="light v"></div></div>
-                <div id="tl-o" class="tl-box"><div class="light r"></div><div class="light a"></div><div class="light v"></div></div>
-                <div id="tl-s" class="tl-box"><div class="light r"></div><div class="light a"></div><div class="light v"></div></div>
-                <div id="tl-ne" class="tl-box"><div class="light r"></div><div class="light a"></div><div class="light v"></div></div>
-                <div id="tl-e" class="tl-box"><div class="light r"></div><div class="light a"></div><div class="light v"></div></div>
+                    <circle cx="250" cy="250" r="45" class="center-node" />
+
+                    <rect id="c1" x="145" y="125" width="22" height="14" rx="3" transform="rotate(38, 145, 125)" class="car-node" />
+                    <rect id="c2" x="100" y="233" width="24" height="14" rx="3" class="car-node" />
+                    <rect id="c3" x="238" y="370" width="14" height="24" rx="3" class="car-node" />
+                    <rect id="c4" x="335" y="140" width="22" height="14" rx="3" transform="rotate(-38, 335, 140)" class="car-node" />
+                    <rect id="c5" x="370" y="233" width="24" height="14" rx="3" class="car-node" />
+
+                    <g id="sem1"><rect x="180" y="170" width="14" height="32" class="sem-bg"/><circle id="s1-r" cx="187" cy="176" r="4" class="light"/><circle id="s1-a" cx="187" cy="186" r="4" class="light"/><circle id="s1-v" cx="187" cy="196" r="4" class="light"/></g>
+                    <g id="sem2"><rect x="180" y="210" width="32" height="14" class="sem-bg"/><circle id="s2-r" cx="186" cy="217" r="4" class="light"/><circle id="s2-a" cx="196" cy="217" r="4" class="light"/><circle id="s2-v" cx="206" cy="217" r="4" class="light"/></g>
+                    <g id="sem3"><rect x="210" y="295" width="14" height="32" class="sem-bg"/><circle id="s3-r" cx="217" cy="301" r="4" class="light"/><circle id="s3-a" cx="217" cy="311" r="4" class="light"/><circle id="s3-v" cx="217" cy="321" r="4" class="light"/></g>
+                    <g id="sem4"><rect x="305" y="170" width="14" height="32" class="sem-bg"/><circle id="s4-r" cx="312" cy="176" r="4" class="light"/><circle id="s4-a" cx="312" cy="186" r="4" class="light"/><circle id="s4-v" cx="312" cy="196" r="4" class="light"/></g>
+                    <g id="sem5"><rect x="290" y="210" width="32" height="14" class="sem-bg"/><circle id="s5-r" cx="296" cy="217" r="4" class="light"/><circle id="s5-a" cx="306" cy="217" r="4" class="light"/><circle id="s5-v" cx="316" cy="217" r="4" class="light"/></g>
+                </svg>
             </div>
         </div>
 
         <div class="card">
             <div class="panel-header">
-                <h2>Métricas del Nodo</h2>
-                <span class="status-badge" id="lbl-net">Cloud Syncing</span>
+                <h2>Métricas del Nodo Cloud</h2>
+                <span class="status-badge">Sincronizado</span>
             </div>
 
             <div class="metric-row">
                 <div class="metric-tile">
-                    <span>Algoritmo de Control</span>
+                    <span>Algoritmo Operativo</span>
                     <div id="lbl-modo" style="color: #3b82f6;">-</div>
                 </div>
                 <div class="metric-tile">
@@ -303,27 +201,27 @@
 
             <div class="metric-row">
                 <div class="metric-tile">
-                    <span>Estado del Nodo</span>
+                    <span>Estado Fase</span>
                     <div id="lbl-fase">-</div>
                 </div>
                 <div class="metric-tile">
-                    <span>Eficiencia de Retraso</span>
-                    <div id="lbl-ahorro" style="color: #f59e0b;">0s saved</div>
+                    <span>Optimización de Tiempo</span>
+                    <div id="lbl-ahorro" style="color: #f59e0b;">0s salvados</div>
                 </div>
             </div>
 
-            <h3>Consola Telemetría Realtime</h3>
-            <div class="console" id="log-console">> Inicializando enlace asíncrono...<br>> Escuchando clúster de Firebase...</div>
+            <h3>Consola de Eventos Recientes</h3>
+            <div class="console" id="log-console">> Enlace listo.<br>> Conectado a los sistemas de telemetría de la UPC.</div>
 
             <div class="action-container">
-                <button class="btn-cloud btn-primary" onclick="conmutarModo()">Conmutar Algoritmo</button>
+                <button class="btn-cloud btn-primary" onclick="conmutarModo()">Conmutar Modo</button>
                 <button class="btn-cloud btn-secondary" onclick="recalibrarVias()">Calibrar Sensores</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (¡Pon tu URL aquí!)
+        // CONFIGURACIÓN DE TU BASE DE DATOS DE FIREBASE
         const firebaseConfig = {
             databaseURL: "https://semaforo-seiat-default-rtdb.firebaseio.com"
         };
@@ -340,62 +238,65 @@
             const data = snapshot.val();
             if(!data) return;
 
-            // Mapeo de datos principales
             const nombresVias = ["Norte-Oeste", "Oeste", "Sur", "Norte-Este", "Este"];
-            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO" : "ESTÁTICO FIJO";
+            document.getElementById('lbl-modo').innerText = data.modo ? "ADAPTATIVO (INTELIGENTE)" : "ESTÁTICO FIJO";
             document.getElementById('lbl-via').innerText = nombresVias[data.via_activa] || "Ninguna";
             document.getElementById('lbl-fase').innerText = data.estado;
             document.getElementById('lbl-ahorro').innerText = data.ahorro + " segundos";
 
-            // Control estructural de sensores y carriles
-            const viasDom = ["v-no", "v-o", "v-s", "v-ne", "v-e"];
-            const carsDom = ["car-no", "car-o", "car-s", "car-ne", "car-e"];
+            // Control de Estados de los Sensores y Dibujo de Autos Virtuales
+            const lanesDom = ["v1-lane", "v2-lane", "v3-lane", "v4-lane", "v5-lane"];
+            const carsDom = ["c1", "c2", "c3", "c4", "c5"];
 
             for(let i = 0; i < 5; i++) {
-                let roadElement = document.getElementById(viasDom[i]);
+                let laneElement = document.getElementById(lanesDom[i]);
                 let carElement = document.getElementById(carsDom[i]);
-                let isDetected = data['s' + (i+1)];
+                let detected = data['s' + (i+1)];
 
-                if(isDetected) {
-                    roadElement.classList.add('sensor-active');
+                if(detected) {
+                    laneElement.classList.add('lane-active');
                     carElement.style.display = 'block';
                 } else {
-                    roadElement.classList.remove('sensor-active');
+                    laneElement.classList.remove('lane-active');
                     carElement.style.display = 'none';
                 }
             }
 
-            // Limpieza general de semáforos
-            const semDom = ["tl-no", "tl-o", "tl-s", "tl-ne", "tl-e"];
-            for(let i = 0; i < 5; i++) {
-                let box = document.getElementById(semDom[i]);
-                box.querySelector('.r').style.backgroundColor = '#1f2937';
-                box.querySelector('.a').style.backgroundColor = '#1f2937';
-                box.querySelector('.v').style.backgroundColor = '#1f2937';
+            // Apagar todas las luces de los semáforos vectoriales antes de actualizar
+            for(let i = 1; i <= 5; i++) {
+                document.getElementById(`s${i}-r`).style.fill = '#1f2937';
+                document.getElementById(`s${i}-a`).style.fill = '#1f2937';
+                document.getElementById(`s${i}-v`).style.fill = '#1f2937';
+                document.getElementById(`${lanesDom[i-1]}`).classList.remove('lane-flow'); // Quitar color verde
             }
 
-            // Encender semáforo activo y poner el resto en rojo restrictivo
-            let idxActivo = data.via_activa;
+            // Encender semáforo activo y poner restrictivo (Rojo) el resto
+            let activeIdx = data.via_activa;
             for(let i = 0; i < 5; i++) {
-                let box = document.getElementById(semDom[i]);
-                if(i === idxActivo) {
-                    if(data.estado === "CRUCE LIBRE") box.querySelector('.v').style.backgroundColor = '#10b981';
-                    else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") box.querySelector('.a').style.backgroundColor = '#f59e0b';
-                    else box.querySelector('.r').style.backgroundColor = '#ef4444';
+                let n = i + 1;
+                if(i === activeIdx) {
+                    if(data.estado === "CRUCE LIBRE") {
+                        document.getElementById(`s${n}-v`).style.fill = '#10b981';
+                        document.getElementById(lanesDom[i]).classList.add('lane-flow'); // Iluminar carril verde
+                    } else if(data.estado === "PREPARANDO" || data.estado === "FRENANDO") {
+                        document.getElementById(`s${n}-a`).style.fill = '#f59e0b';
+                    } else {
+                        document.getElementById(`s${n}-r`).style.fill = '#ef4444';
+                    }
                 } else {
-                    box.querySelector('.r').style.backgroundColor = '#ef4444';
+                    document.getElementById(`s${n}-r`).style.fill = '#ef4444';
                 }
             }
         });
 
         function conmutarModo() {
             db.child('modo').transaction(current => !current);
-            appendLog("Comando enviado: Conmutar Modo Operativo");
+            appendLog("Comando Cloud: Intercambio de Algoritmo enviado.");
         }
 
         function recalibrarVias() {
             db.update({ estado: "CALIBRANDO WEB" });
-            appendLog("Comando enviado: Forzar Recalibración de Sensores");
+            appendLog("Comando Cloud: Forzando recalibración en caliente.");
         }
     </script>
 </body>
